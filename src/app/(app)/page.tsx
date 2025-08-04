@@ -1,8 +1,14 @@
+
+"use client";
+
 import Link from 'next/link';
 import Image from 'next/image';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { ArrowRight, Camera, MessageCircle, HeartPulse, Dumbbell } from "lucide-react";
+import { ArrowRight, Camera, MessageCircle, HeartPulse, Dumbbell, User, Edit, Palette, BarChart2, Droplet, Smile, Moon } from "lucide-react";
 import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import useLocalStorage from '@/hooks/use-local-storage';
+import { Progress } from '@/components/ui/progress';
 
 const features = [
   {
@@ -43,6 +49,56 @@ const features = [
   }
 ];
 
+function UserProfileCard() {
+  const [exerciseDuration] = useLocalStorage('exerciseDuration', 0);
+  const [waterIntake] = useLocalStorage('waterIntake', 0);
+  const [sleepQuality] = useLocalStorage<number[]>('sleepQuality', [7]);
+
+  return (
+    <Card className="w-full">
+      <CardContent className="p-6">
+        <div className="flex flex-col md:flex-row items-center gap-6">
+          <Avatar className="h-24 w-24 border-4 border-primary">
+            <AvatarImage src="https://placehold.co/100x100.png" alt="User Avatar" data-ai-hint="profile avatar" />
+            <AvatarFallback>
+              <User className="h-12 w-12" />
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex-1 text-center md:text-left">
+            <h2 className="text-2xl font-headline">Jessica (Anda)</h2>
+            <p className="text-muted-foreground">17 tahun · Dia/Perempuan</p>
+            <div className="flex gap-2 mt-2 justify-center md:justify-start">
+              <Button variant="outline" size="sm"><Edit className="mr-2 h-4 w-4" /> Edit Profil</Button>
+              <Button variant="outline" size="sm"><Palette className="mr-2 h-4 w-4" /> Ganti Tema</Button>
+            </div>
+          </div>
+          <div className="w-full md:w-auto flex-shrink-0 md:border-l md:pl-6 text-center md:text-left">
+            <h3 className="text-lg font-semibold mb-2 flex items-center gap-2 justify-center md:justify-start"><BarChart2 /> Ringkasan Mingguan</h3>
+            <div className="space-y-2 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <Dumbbell className="h-4 w-4 text-primary" />
+                <span>Yoga: {exerciseDuration} / 300 menit</span>
+                <Progress value={(exerciseDuration / 300) * 100} className="w-24 h-2" />
+              </div>
+              <div className="flex items-center gap-2">
+                <Droplet className="h-4 w-4 text-primary" />
+                <span>Air: {waterIntake} / 56 gelas</span>
+                 <Progress value={(waterIntake / 56) * 100} className="w-24 h-2" />
+              </div>
+              <div className="flex items-center gap-2">
+                <Moon className="h-4 w-4 text-primary" />
+                <span>Tidur: {sleepQuality[0]}/10 Kualitas</span>
+                 <Progress value={(sleepQuality[0] / 10) * 100} className="w-24 h-2" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+
 export default function DashboardPage() {
   return (
     <div className="flex flex-col space-y-8">
@@ -51,7 +107,8 @@ export default function DashboardPage() {
         <p className="text-lg text-muted-foreground">Pusat kebugaran dan kesehatan Anda, dirancang untuk memberdayakan.</p>
       </header>
 
-      <main>
+      <main className="space-y-8">
+        <UserProfileCard />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {features.map((feature) => (
             <Card key={feature.title} className="group overflow-hidden transition-all duration-300 hover:shadow-2xl hover:border-primary/50">
