@@ -11,7 +11,7 @@ import { Volume2, Loader, AlertCircle } from 'lucide-react';
 import { audioNarrator } from '@/ai/flows/audio-narrator-flow';
 import { useToast } from "@/hooks/use-toast";
 import { cn } from '@/lib/utils';
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const yogaPosesData = [
   {
@@ -183,94 +183,106 @@ export default function TivCoachPage() {
         <p className="text-lg text-muted-foreground">Biarkan avatar virtual kami memandu Anda melalui setiap pose yoga.</p>
       </header>
       
-      <ScrollArea className="w-full whitespace-nowrap rounded-md border">
-        <div className="flex w-max space-x-2 p-2">
-          {yogaPosesData.map((pose, index) => (
-            <Button
-              key={pose.name}
-              variant={index === current ? "default" : "outline"}
-              onClick={() => handlePoseSelect(index)}
-              className="whitespace-normal h-auto"
-            >
-              {pose.name.split('(')[0]}
-            </Button>
-          ))}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <div className="lg:col-span-1">
+            <Card>
+                <CardHeader>
+                    <CardTitle className="font-headline">Daftar Pose</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <ScrollArea className="h-96">
+                        <div className="flex flex-col space-y-2 pr-4">
+                        {yogaPosesData.map((pose, index) => (
+                            <Button
+                            key={pose.name}
+                            variant={index === current ? "default" : "outline"}
+                            onClick={() => handlePoseSelect(index)}
+                            className="w-full justify-start text-left h-auto py-2"
+                            >
+                            {pose.name.split('(')[0]}
+                            </Button>
+                        ))}
+                        </div>
+                    </ScrollArea>
+                </CardContent>
+            </Card>
         </div>
-        <ScrollBar orientation="horizontal" />
-      </ScrollArea>
 
-      <Carousel setApi={setApi} className="w-full max-w-5xl mx-auto" opts={{ loop: true }}>
-        <CarouselContent>
-          {yogaPosesData.map((pose, index) => {
-            const levelData = pose.levels[difficulty];
-            const audioState = audioStates[index] || { loading: false, error: null, data: null };
+        <div className="lg:col-span-3">
+          <Carousel setApi={setApi} className="w-full" opts={{ loop: true }}>
+            <CarouselContent>
+              {yogaPosesData.map((pose, index) => {
+                const levelData = pose.levels[difficulty];
+                const audioState = audioStates[index] || { loading: false, error: null, data: null };
 
-            return (
-              <CarouselItem key={pose.name}>
-                <div className="p-1">
-                  <Card>
-                    <CardContent className="flex flex-col lg:flex-row gap-6 p-6 items-center">
-                      <div className="w-full lg:w-2/3 flex-shrink-0 flex gap-4">
-                        <div className="relative w-2/3 aspect-[4/3] rounded-lg overflow-hidden border-2 border-primary">
-                          <Image src={pose.image} alt={pose.name} layout="fill" objectFit="cover" data-ai-hint={pose.imgHint}/>
-                        </div>
-                        <div className="relative w-1/3 aspect-[2/3] rounded-lg overflow-hidden">
-                          <Image src="https://placehold.co/400x600.png" alt="Yoga Instructor Avatar" layout="fill" objectFit="cover" data-ai-hint="yoga instructor avatar" />
-                        </div>
-                      </div>
-                      <div className="w-full lg:w-1/3 space-y-4">
-                        <div className="space-y-2">
-                           <Label htmlFor={`difficulty-${index}`}>Tingkat Kesulitan</Label>
-                           <Select onValueChange={(value) => setDifficulty(value as Difficulty)} defaultValue={difficulty}>
-                            <SelectTrigger id={`difficulty-${index}`}>
-                                <SelectValue placeholder="Pilih tingkat..." />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="pemula">Pemula</SelectItem>
-                                <SelectItem value="menengah">Menengah</SelectItem>
-                                <SelectItem value="mahir">Mahir</SelectItem>
-                            </SelectContent>
-                           </Select>
-                        </div>
-                        <CardTitle className="text-2xl font-headline">{pose.name}</CardTitle>
-                        <CardDescription>{pose.description}</CardDescription>
-                         <p className="text-sm font-semibold">Durasi: <span className="font-normal text-muted-foreground">{levelData.duration}</span></p>
-                        <div>
-                          <h3 className="font-semibold mb-2">Langkah-langkah:</h3>
-                          <ul className="list-decimal list-inside space-y-1 text-sm text-muted-foreground">
-                            {levelData.steps.map((step, i) => (
-                              <li key={i}>{step}</li>
-                            ))}
-                          </ul>
-                        </div>
-                        <div>
-                          <Button onClick={() => handleNarration(index)} disabled={audioState.loading}>
-                            {audioState.loading ? (
-                              <><Loader className="mr-2 animate-spin" /> Memuat...</>
-                            ) : (
-                              <><Volume2 className="mr-2" /> Dengarkan Instruksi</>
-                            )}
-                          </Button>
-                           {audioState.error && <p className="text-destructive text-xs mt-2 flex items-center gap-1"><AlertCircle className="h-4 w-4" /> {audioState.error}</p>}
-                          {audioState.data && (
-                            <div className="mt-4">
-                              <audio controls src={audioState.data} className="w-full">
-                                Browser Anda tidak mendukung elemen audio.
-                              </audio>
+                return (
+                  <CarouselItem key={pose.name}>
+                    <div className="p-1">
+                      <Card>
+                        <CardContent className="flex flex-col lg:flex-row gap-6 p-6 items-center">
+                          <div className="w-full lg:w-2/3 flex-shrink-0 flex gap-4">
+                            <div className="relative w-2/3 aspect-[4/3] rounded-lg overflow-hidden border-2 border-primary">
+                              <Image src={pose.image} alt={pose.name} layout="fill" objectFit="cover" data-ai-hint={pose.imgHint}/>
                             </div>
-                          )}
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </CarouselItem>
-            );
-          })}
-        </CarouselContent>
-        <CarouselPrevious className="hidden sm:flex -left-4" />
-        <CarouselNext className="hidden sm:flex -right-4" />
-      </Carousel>
+                            <div className="relative w-1/3 aspect-[2/3] rounded-lg overflow-hidden">
+                              <Image src="https://placehold.co/400x600.png" alt="Yoga Instructor Avatar" layout="fill" objectFit="cover" data-ai-hint="yoga instructor avatar" />
+                            </div>
+                          </div>
+                          <div className="w-full lg:w-1/3 space-y-4">
+                            <div className="space-y-2">
+                              <Label htmlFor={`difficulty-${index}`}>Tingkat Kesulitan</Label>
+                              <Select onValueChange={(value) => setDifficulty(value as Difficulty)} defaultValue={difficulty}>
+                                <SelectTrigger id={`difficulty-${index}`}>
+                                    <SelectValue placeholder="Pilih tingkat..." />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="pemula">Pemula</SelectItem>
+                                    <SelectItem value="menengah">Menengah</SelectItem>
+                                    <SelectItem value="mahir">Mahir</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <CardTitle className="text-2xl font-headline">{pose.name}</CardTitle>
+                            <CardDescription>{pose.description}</CardDescription>
+                            <p className="text-sm font-semibold">Durasi: <span className="font-normal text-muted-foreground">{levelData.duration}</span></p>
+                            <div>
+                              <h3 className="font-semibold mb-2">Langkah-langkah:</h3>
+                              <ul className="list-decimal list-inside space-y-1 text-sm text-muted-foreground">
+                                {levelData.steps.map((step, i) => (
+                                  <li key={i}>{step}</li>
+                                ))}
+                              </ul>
+                            </div>
+                            <div>
+                              <Button onClick={() => handleNarration(index)} disabled={audioState.loading}>
+                                {audioState.loading ? (
+                                  <><Loader className="mr-2 animate-spin" /> Memuat...</>
+                                ) : (
+                                  <><Volume2 className="mr-2" /> Dengarkan Instruksi</>
+                                )}
+                              </Button>
+                              {audioState.error && <p className="text-destructive text-xs mt-2 flex items-center gap-1"><AlertCircle className="h-4 w-4" /> {audioState.error}</p>}
+                              {audioState.data && (
+                                <div className="mt-4">
+                                  <audio controls src={audioState.data} className="w-full">
+                                    Browser Anda tidak mendukung elemen audio.
+                                  </audio>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </CarouselItem>
+                );
+              })}
+            </CarouselContent>
+            <CarouselPrevious className="hidden sm:flex -left-4" />
+            <CarouselNext className="hidden sm:flex -right-4" />
+          </Carousel>
+        </div>
+      </div>
     </div>
   );
 }
@@ -282,3 +294,5 @@ const Label = ({ className, ...props }: React.LabelHTMLAttributes<HTMLLabelEleme
     {...props}
   />
 );
+
+    
