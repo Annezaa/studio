@@ -118,6 +118,111 @@ const yogaPosesData = [
         ]
       }
     }
+  },
+  {
+    name: "Triangle Pose (Trikonasana)",
+    image: "https://placehold.co/800x600.png",
+    imgHint: "triangle pose yoga",
+    description: "Meregangkan kaki, pinggul, dan tulang belakang, serta meningkatkan keseimbangan.",
+    levels: {
+      pemula: {
+        duration: "20-30 detik per sisi",
+        steps: [
+            "Berdiri dengan kaki terbuka lebar.",
+            "Putar kaki kanan ke luar 90 derajat dan kaki kiri sedikit ke dalam.",
+            "Rentangkan lengan sejajar dengan lantai, lalu tekuk ke samping kanan, letakkan tangan di tulang kering atau balok.",
+            "Angkat lengan kiri ke atas."
+        ]
+      },
+      menengah: {
+        duration: "30-45 detik per sisi",
+        steps: [
+            "Letakkan tangan kanan di lantai di belakang kaki kanan Anda.",
+            "Buka dada lebih lebar, tatap ujung jari tangan kiri di atas.",
+            "Jaga kedua kaki tetap kuat dan lurus.",
+            "Rasakan peregangan di sisi tubuh Anda."
+        ]
+      },
+      mahir: {
+        duration: "1 menit per sisi",
+        steps: [
+            "Pegang ibu jari kaki kanan Anda dengan jari telunjuk dan tengah tangan kanan.",
+            "Tingkatkan putaran pada tulang belakang Anda, buka dada sepenuhnya ke langit-langit.",
+            "Jaga agar inti tubuh tetap aktif untuk stabilitas.",
+            "Pertahankan napas yang dalam dan teratur."
+        ]
+      }
+    }
+  },
+  {
+    name: "Bridge Pose (Setu Bandhasana)",
+    image: "https://placehold.co/800x600.png",
+    imgHint: "bridge pose yoga",
+    description: "Memperkuat punggung, bokong, dan paha belakang, serta meregangkan dada.",
+    levels: {
+      pemula: {
+        duration: "30-60 detik",
+        steps: [
+            "Berbaring telentang dengan lutut ditekuk, kaki rata di lantai selebar pinggul.",
+            "Letakkan lengan di samping tubuh dengan telapak tangan menghadap ke bawah.",
+            "Angkat pinggul dari lantai.",
+            "Jaga agar paha tetap sejajar."
+        ]
+      },
+      menengah: {
+        duration: "1-2 menit",
+        steps: [
+            "Kaitkan jari-jari tangan di bawah panggul Anda yang terangkat.",
+            "Tekan lengan dan bahu ke lantai untuk mengangkat dada lebih tinggi.",
+            "Angkat pinggul lebih tinggi lagi, libatkan bokong.",
+            "Bernapas dengan stabil."
+        ]
+      },
+      mahir: {
+        duration: "2 menit",
+        steps: [
+            "Dari posisi Bridge, angkat satu kaki lurus ke langit-langit.",
+            "Jaga agar pinggul tetap sejajar dan terangkat.",
+            "Tahan selama beberapa napas, lalu ganti kaki.",
+            "Libatkan inti tubuh untuk menjaga keseimbangan."
+        ]
+      }
+    }
+  },
+  {
+    name: "Cat-Cow Pose (Marjaryasana-Bitilasana)",
+    image: "https://placehold.co/800x600.png",
+    imgHint: "cat cow pose yoga",
+    description: "Meningkatkan fleksibilitas tulang belakang dan meredakan ketegangan punggung.",
+    levels: {
+      pemula: {
+        duration: "1-2 menit",
+        steps: [
+            "Mulai dengan posisi merangkak.",
+            "Tarik napas sambil melengkungkan punggung ke bawah (Cow).",
+            "Hembuskan napas sambil membulatkan tulang belakang ke atas (Cat).",
+            "Ulangi gerakan ini mengikuti irama napas Anda."
+        ]
+      },
+      menengah: {
+        duration: "2-3 menit",
+        steps: [
+            "Fokus pada koordinasi napas dan gerakan secara presisi.",
+            "Saat dalam pose Cow, buka dada Anda ke depan.",
+            "Saat dalam pose Cat, dorong lantai menjauh dari Anda.",
+            "Rasakan setiap sendi tulang belakang bergerak."
+        ]
+      },
+      mahir: {
+        duration: "3-5 menit",
+        steps: [
+            "Tambahkan gerakan melingkar pada pinggul dan tulang rusuk.",
+            "Gerakkan tubuh secara bebas dan intuitif dari pose Cat ke Cow.",
+            "Coba tutup mata Anda untuk merasakan gerakan lebih dalam.",
+            "Jadikan ini sebagai meditasi bergerak."
+        ]
+      }
+    }
   }
 ];
 
@@ -294,5 +399,3 @@ const Label = ({ className, ...props }: React.LabelHTMLAttributes<HTMLLabelEleme
     {...props}
   />
 );
-
-    
