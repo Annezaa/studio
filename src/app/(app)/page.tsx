@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import useLocalStorage from '@/hooks/use-local-storage';
 import { Progress } from '@/components/ui/progress';
+import { useState, useEffect } from 'react';
 
 const features = [
   {
@@ -53,6 +54,12 @@ function UserProfileCard() {
   const [exerciseDuration] = useLocalStorage('exerciseDuration', 0);
   const [waterIntake] = useLocalStorage('waterIntake', 0);
   const [sleepQuality] = useLocalStorage<number[]>('sleepQuality', [7]);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
 
   return (
     <Card className="w-full">
@@ -77,18 +84,18 @@ function UserProfileCard() {
             <div className="space-y-2 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
                 <Dumbbell className="h-4 w-4 text-primary" />
-                <span>Yoga: {exerciseDuration} / 300 menit</span>
-                <Progress value={(exerciseDuration / 300) * 100} className="w-24 h-2" />
+                <span>Yoga: {isClient ? exerciseDuration : 0} / 300 menit</span>
+                <Progress value={isClient ? (exerciseDuration / 300) * 100 : 0} className="w-24 h-2" />
               </div>
               <div className="flex items-center gap-2">
                 <Droplet className="h-4 w-4 text-primary" />
-                <span>Air: {waterIntake} / 56 gelas</span>
-                 <Progress value={(waterIntake / 56) * 100} className="w-24 h-2" />
+                <span>Air: {isClient ? waterIntake : 0} / 56 gelas</span>
+                 <Progress value={isClient ? (waterIntake / 56) * 100 : 0} className="w-24 h-2" />
               </div>
               <div className="flex items-center gap-2">
                 <Moon className="h-4 w-4 text-primary" />
-                <span>Tidur: {sleepQuality[0]}/10 Kualitas</span>
-                 <Progress value={(sleepQuality[0] / 10) * 100} className="w-24 h-2" />
+                <span>Tidur: {isClient ? sleepQuality[0] : 7}/10 Kualitas</span>
+                 <Progress value={isClient ? (sleepQuality[0] / 10) * 100 : 70} className="w-24 h-2" />
               </div>
             </div>
           </div>
