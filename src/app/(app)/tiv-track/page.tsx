@@ -1,3 +1,4 @@
+
 "use client";
 
 import useLocalStorage from '@/hooks/use-local-storage';
@@ -7,9 +8,13 @@ import { Progress } from '@/components/ui/progress';
 import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
 import { Calendar } from '@/components/ui/calendar';
-import { Dumbbell, GlassWater, Bed, CalendarHeart, Plus, Minus, Flame } from 'lucide-react';
+import { Dumbbell, GlassWater, Bed, CalendarHeart, Plus, Minus, Flame, Smile as SmileIcon, Frown, Laugh, Meh, Angry } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
+import { ChartContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
+import { cn } from '@/lib/utils';
+import { format, subDays, startOfWeek } from 'date-fns';
+import { id as indonesiaLocale } from 'date-fns/locale';
 
 const isSameDay = (date1: Date, date2: Date) =>
   date1.getFullYear() === date2.getFullYear() &&
@@ -25,7 +30,6 @@ const getStreak = (exerciseHistory: string[]): number => {
   const today = new Date();
   const sortedDates = exerciseHistory.map(d => new Date(d)).sort((a, b) => b.getTime() - a.getTime());
 
-  // Filter out duplicate dates for the same day
   const uniqueDates: Date[] = [];
   sortedDates.forEach(date => {
     if (!uniqueDates.some(uniqueDate => isSameDay(uniqueDate, date))) {
@@ -57,6 +61,18 @@ const getStreak = (exerciseHistory: string[]): number => {
   return streak;
 };
 
+interface MoodEntry {
+  date: string;
+  mood: number; // 1 to 5
+}
+
+const moodOptions = [
+  { mood: 5, icon: '😄', label: 'Sangat Senang' },
+  { mood: 4, icon: '🙂', label: 'Senang' },
+  { mood: 3, icon: '😐', label: 'Biasa' },
+  { mood: 2, icon: '😔', label: 'Sedih' },
+  { mood: 1, icon: '😢', label: 'Sangat Sedih' },
+];
 
 export default function TivTrackPage() {
   const [exerciseDuration, setExerciseDuration] = useLocalStorage('exerciseDuration', 0);
@@ -72,9 +88,63 @@ export default function TivTrackPage() {
   const [exerciseHistory, setExerciseHistory] = useLocalStorage<string[]>('exerciseHistory', []);
   const [streak, setStreak] = useState(0);
 
+  const [moodHistory, setMoodHistory] = useLocalStorage<MoodEntry[]>('moodHistory', []);
+
   useEffect(() => {
     setStreak(getStreak(exerciseHistory));
   }, [exerciseHistory]);
+  
+  const handleMoodSelect = (mood: number) => {
+    const todayStr = new Date().toISOString().split('T')[0];
+    const newMoodHistory = moodHistory.filter(entry => entry.date !== todayStr);
+    setMoodHistory([...newMoodHistory, { date: todayStr, mood }]);
+  };
+
+  const getTodayMood = () => {
+    const todayStr = new Date().toISOString().split('T')[0];
+    return moodHistory.find(entry => entry.date === todayStr)?.mood;
+  };
+  
+  const moodChartData = useMemo(() => {
+    const data = [];
+    const today = new Date();
+    for (let i = 6; i >= 0; i--) {
+        const date = subDays(today, i);
+        const dateStr = date.toISOString().split('T')[0];
+        const dayName = format(date, "EEEEEE", { locale: indonesiaLocale });
+        const moodEntry = moodHistory.find(entry => entry.date === dateStr);
+        data.push({
+            name: dayName,
+            mood: moodEntry ? moodEntry.mood : 0,
+            label: moodEntry ? moodOptions.find(m => m.mood === moodEntry.mood)?.icon : '❔'
+        });
+    }
+    return data;
+  }, [moodHistory]);
+
+  const getMoodSummary = () => {
+    const recentMoods = moodChartData.filter(d => d.mood > 0).map(d => d.mood);
+    if (recentMoods.length < 2) return "Lacak mood kamu untuk melihat ringkasan mingguan.";
+
+    const avgMood = recentMoods.reduce((a, b) => a + b, 0) / recentMoods.length;
+    const moodVariation = Math.max(...recentMoods) - Math.min(...recentMoods);
+    
+    let summary = "";
+    if (moodVariation <= 1) {
+      summary = "Mood kamu lebih stabil minggu ini. ";
+    } else if (moodVariation >= 3) {
+      summary = "Mood kamu cukup bervariasi minggu ini. ";
+    }
+
+    const bestDayIndex = recentMoods.indexOf(Math.max(...recentMoods));
+    const bestDay = moodChartData.filter(d => d.mood > 0)[bestDayIndex];
+    if(bestDay) {
+        const fullDayName = format(subDays(new Date(), 6 - moodChartData.indexOf(bestDay)), "EEEE", { locale: indonesiaLocale });
+        summary += `Hari terbaikmu: ${fullDayName}!`;
+    }
+    
+    return summary;
+  };
 
   const handleDayClick = (day: Date | undefined) => {
     if (!day) return;
@@ -122,6 +192,13 @@ export default function TivTrackPage() {
     }
     return null;
   }
+
+  const chartConfig = {
+    mood: {
+      label: "Mood",
+      color: "hsl(var(--primary))",
+    },
+  };
 
   return (
     <div className="space-y-8">
@@ -231,7 +308,58 @@ export default function TivTrackPage() {
             />
           </CardContent>
         </Card>
+
+        <Card className="md:col-span-2">
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2 font-headline"><SmileIcon className="text-primary"/>Pelacak Mood</CardTitle>
+                <CardDescription>Bagaimana perasaanmu hari ini? Pilihanmu akan disimpan untuk hari ini.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+                <div className="flex justify-around">
+                {moodOptions.map(({ mood, icon, label }) => (
+                    <Button
+                    key={mood}
+                    variant="ghost"
+                    size="icon"
+                    className={cn(
+                        "h-16 w-16 rounded-full text-4xl transition-all duration-300 transform hover:scale-110",
+                        getTodayMood() === mood && "bg-primary/20 scale-110 border-2 border-primary"
+                    )}
+                    onClick={() => handleMoodSelect(mood)}
+                    aria-label={label}
+                    >
+                    {icon}
+                    </Button>
+                ))}
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-center mb-4">Tren Mood Mingguan</h3>
+                   <ChartContainer config={chartConfig} className="h-64 w-full">
+                        <BarChart data={moodChartData} margin={{ top: 20, right: 20, left: -20, bottom: 5 }}>
+                            <CartesianGrid vertical={false} />
+                            <XAxis dataKey="name" tickLine={false} axisLine={false} />
+                            <YAxis domain={[0, 5]} tickLine={false} axisLine={false} hide/>
+                            <ChartTooltip
+                              cursor={false}
+                              content={<ChartTooltipContent
+                                  formatter={(value, name, item) => (
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-2xl">{item.payload.label}</span>
+                                      <span>{moodOptions.find(m => m.mood === value)?.label}</span>
+                                    </div>
+                                  )}
+                                  labelFormatter={(label) => format(new Date(), 'eeee, d MMMM', { locale: indonesiaLocale})}
+                                />}
+                            />
+                            <Bar dataKey="mood" radius={8} />
+                        </BarChart>
+                    </ChartContainer>
+                    <p className="text-sm text-center text-muted-foreground mt-2">{getMoodSummary()}</p>
+                </div>
+            </CardContent>
+        </Card>
       </div>
     </div>
   );
 }
+
