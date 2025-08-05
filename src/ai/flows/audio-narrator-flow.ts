@@ -11,11 +11,7 @@ import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 import wav from 'wav';
 import { googleAI } from '@genkit-ai/googleai';
-
-export const AudioNarratorOutputSchema = z.object({
-  media: z.string().describe("The base64 encoded WAV audio data URI."),
-});
-export type AudioNarratorOutput = z.infer<typeof AudioNarratorOutputSchema>;
+import { AudioNarratorOutput, AudioNarratorOutputSchema } from '@/ai/schemas/audio-narrator-schemas';
 
 export async function audioNarrator(text: string): Promise<AudioNarratorOutput> {
   return audioNarratorFlow(text);
