@@ -1,15 +1,17 @@
 
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import { Carousel, CarouselApi, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from '@/components/ui/button';
 import { Volume2, Loader, AlertCircle } from 'lucide-react';
 import { audioNarrator } from '@/ai/flows/audio-narrator-flow';
 import { useToast } from "@/hooks/use-toast";
+import { cn } from '@/lib/utils';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 
 const yogaPosesData = [
   {
@@ -122,9 +124,33 @@ const yogaPosesData = [
 type Difficulty = 'pemula' | 'menengah' | 'mahir';
 
 export default function TivCoachPage() {
+  const [api, setApi] = useState<CarouselApi>()
+  const [current, setCurrent] = useState(0)
   const [difficulty, setDifficulty] = useState<Difficulty>('pemula');
   const [audioStates, setAudioStates] = useState<Record<number, { loading: boolean, error: string | null, data: string | null }>>({});
   const { toast } = useToast();
+  
+  useEffect(() => {
+    if (!api) {
+      return
+    }
+
+    setCurrent(api.selectedScrollSnap())
+
+    const handleSelect = (api: CarouselApi) => {
+        setCurrent(api.selectedScrollSnap())
+    }
+
+    api.on("select", handleSelect)
+
+    return () => {
+      api.off("select", handleSelect)
+    }
+  }, [api])
+
+  const handlePoseSelect = useCallback((index: number) => {
+    api?.scrollTo(index);
+  }, [api]);
 
   const handleNarration = async (poseIndex: number) => {
     const pose = yogaPosesData[poseIndex];
@@ -156,8 +182,24 @@ export default function TivCoachPage() {
         <h1 className="text-4xl md:text-5xl font-headline text-foreground">TIV-COACH</h1>
         <p className="text-lg text-muted-foreground">Biarkan avatar virtual kami memandu Anda melalui setiap pose yoga.</p>
       </header>
+      
+      <ScrollArea className="w-full whitespace-nowrap rounded-md border">
+        <div className="flex w-max space-x-2 p-2">
+          {yogaPosesData.map((pose, index) => (
+            <Button
+              key={pose.name}
+              variant={index === current ? "default" : "outline"}
+              onClick={() => handlePoseSelect(index)}
+              className="whitespace-normal h-auto"
+            >
+              {pose.name.split('(')[0]}
+            </Button>
+          ))}
+        </div>
+        <ScrollBar orientation="horizontal" />
+      </ScrollArea>
 
-      <Carousel className="w-full max-w-5xl mx-auto" opts={{ loop: true }}>
+      <Carousel setApi={setApi} className="w-full max-w-5xl mx-auto" opts={{ loop: true }}>
         <CarouselContent>
           {yogaPosesData.map((pose, index) => {
             const levelData = pose.levels[difficulty];
