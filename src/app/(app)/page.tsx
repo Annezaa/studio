@@ -72,7 +72,7 @@ function UserProfileCard() {
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 text-center md:text-left">
-            <h2 className="text-2xl font-headline">Jessica (Anda)</h2>
+            <h2 className="text-2xl font-headline">Mitha (Anda)</h2>
             <p className="text-muted-foreground">17 tahun · Mahasiswa</p>
             <div className="flex gap-2 mt-2 justify-center md:justify-start">
               <Button variant="outline" size="sm"><Edit className="mr-2 h-4 w-4" /> Edit Profil</Button>
