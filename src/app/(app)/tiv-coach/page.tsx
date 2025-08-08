@@ -16,7 +16,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 const yogaPosesData = [
   {
     name: "Downward-Facing Dog (Adho Mukha Svanasana)",
-    image: "https://placehold.co/800x600.png",
+    image: "https://images.unsplash.com/photo-1591291621265-b3a88b41b4a9?q=80&w=1887&auto=format&fit=crop",
     imgHint: "downward dog yoga",
     description: "Pose ini meregangkan seluruh tubuh, membangun kekuatan di lengan dan kaki, serta menenangkan pikiran.",
     levels: {
@@ -51,7 +51,7 @@ const yogaPosesData = [
   },
   {
     name: "Warrior II (Virabhadrasana II)",
-    image: "https://placehold.co/800x600.png",
+    image: "https://images.unsplash.com/photo-1597964448532-a5b17a126d83?q=80&w=1887&auto=format&fit=crop",
     imgHint: "warrior two yoga",
     description: "Meningkatkan stamina, meregangkan pinggul dan bahu, serta membangun konsentrasi.",
     levels: {
@@ -86,7 +86,7 @@ const yogaPosesData = [
   },
   {
     name: "Tree Pose (Vrksasana)",
-    image: "https://placehold.co/800x600.png",
+    image: "https://images.unsplash.com/photo-1593811167563-0b2a382103c8?q=80&w=1887&auto=format&fit=crop",
     imgHint: "tree pose yoga",
     description: "Meningkatkan keseimbangan, memperkuat paha dan betis, serta menenangkan pikiran.",
     levels: {
@@ -121,7 +121,7 @@ const yogaPosesData = [
   },
   {
     name: "Triangle Pose (Trikonasana)",
-    image: "https://placehold.co/800x600.png",
+    image: "https://images.unsplash.com/photo-1610664921896-29a5099f7a7a?q=80&w=1887&auto=format&fit=crop",
     imgHint: "triangle pose yoga",
     description: "Meregangkan kaki, pinggul, dan tulang belakang, serta meningkatkan keseimbangan.",
     levels: {
@@ -156,7 +156,7 @@ const yogaPosesData = [
   },
   {
     name: "Bridge Pose (Setu Bandhasana)",
-    image: "https://placehold.co/800x600.png",
+    image: "https://images.unsplash.com/photo-1545389336-cf090694435e?q=80&w=1964&auto=format&fit=crop",
     imgHint: "bridge pose yoga",
     description: "Memperkuat punggung, bokong, dan paha belakang, serta meregangkan dada.",
     levels: {
@@ -191,7 +191,7 @@ const yogaPosesData = [
   },
   {
     name: "Cat-Cow Pose (Marjaryasana-Bitilasana)",
-    image: "https://placehold.co/800x600.png",
+    image: "https://images.unsplash.com/photo-1545389336-cf090694435e?q=80&w=1964&auto=format&fit=crop",
     imgHint: "cat cow pose yoga",
     description: "Meningkatkan fleksibilitas tulang belakang dan meredakan ketegangan punggung.",
     levels: {
@@ -330,7 +330,7 @@ export default function TivCoachPage() {
                               <Image src={pose.image} alt={pose.name} layout="fill" objectFit="cover" data-ai-hint={pose.imgHint}/>
                             </div>
                             <div className="relative w-1/3 aspect-[2/3] rounded-lg overflow-hidden">
-                              <Image src="https://placehold.co/400x600.png" alt="Yoga Instructor Avatar" layout="fill" objectFit="cover" data-ai-hint="yoga instructor avatar" />
+                              <Image src="https://images.unsplash.com/photo-1599447514193-14b533423234?q=80&w=1887&auto=format&fit=crop" alt="Yoga Instructor Avatar" layout="fill" objectFit="cover" data-ai-hint="yoga instructor avatar" />
                             </div>
                           </div>
                           <div className="w-full lg:w-1/3 space-y-4">

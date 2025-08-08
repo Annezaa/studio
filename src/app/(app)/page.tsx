@@ -17,7 +17,7 @@ const features = [
     description: 'Analisis postur yoga Anda secara real-time dengan AI.',
     href: '/tiv-check',
     icon: <Camera className="h-8 w-8 text-primary" />,
-    img: "https://placehold.co/600x400.png",
+    img: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=1820&auto=format&fit=crop",
     imgHint: "yoga posture",
     cta: 'Mulai Cek'
   },
@@ -26,7 +26,7 @@ const features = [
     description: 'Dapatkan jawaban empatik untuk pertanyaan kesehatan Anda.',
     href: '/tiv-talks',
     icon: <MessageCircle className="h-8 w-8 text-primary" />,
-    img: "https://placehold.co/600x400.png",
+    img: "https://images.unsplash.com/photo-1529156069898-fac51a63c232?q=80&w=2070&auto=format&fit=crop",
     imgHint: "friends talking",
     cta: 'Mulai Bicara'
   },
@@ -35,7 +35,7 @@ const features = [
     description: 'Lacak aktivitas, nutrisi, dan siklus harian Anda.',
     href: '/tiv-track',
     icon: <HeartPulse className="h-8 w-8 text-primary" />,
-    img: "https://placehold.co/600x400.png",
+    img: "https://images.unsplash.com/photo-1511382432889-1241f97c4133?q=80&w=2070&auto=format&fit=crop",
     imgHint: "activity tracking",
     cta: 'Lacak Aktivitas'
   },
@@ -44,7 +44,7 @@ const features = [
     description: 'Panduan yoga virtual dengan instruktur avatar.',
     href: '/tiv-coach',
     icon: <Dumbbell className="h-8 w-8 text-primary" />,
-    img: "https://placehold.co/600x400.png",
+    img: "https://images.unsplash.com/photo-1599447514193-14b533423234?q=80&w=1887&auto=format&fit=crop",
     imgHint: "yoga instructor",
     cta: 'Mulai Latihan'
   }
@@ -66,7 +66,7 @@ function UserProfileCard() {
       <CardContent className="p-6">
         <div className="flex flex-col md:flex-row items-center gap-6">
           <Avatar className="h-24 w-24 border-4 border-primary">
-            <AvatarImage src="https://placehold.co/100x100.png" alt="User Avatar" data-ai-hint="profile avatar" />
+            <AvatarImage src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1964&auto=format&fit=crop" alt="User Avatar" data-ai-hint="profile avatar" />
             <AvatarFallback>
               <User className="h-12 w-12" />
             </AvatarFallback>
@@ -95,7 +95,7 @@ function UserProfileCard() {
               <div className="flex items-center gap-2">
                 <Moon className="h-4 w-4 text-primary" />
                 <span>Tidur: {isClient ? sleepQuality[0] : 7}/10 Kualitas</span>
-                 <Progress value={isClient ? (sleepQuality[0] / 10) * 100 : 70} className="w-24 h-2" />
+                 <Progress value={isClient ? (sleepQuality[0] / 10) * 70 : 70} className="w-24 h-2" />
               </div>
             </div>
           </div>
