@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { ArrowRight, Camera, MessageCircle, HeartPulse, Dumbbell, User, Edit, Palette, BarChart2, Droplet, Smile, Moon } from "lucide-react";
+import { ArrowRight, Camera, MessageCircle, HeartPulse, Dumbbell, User, Edit, Palette, BarChart2, Droplet, Moon } from "lucide-react";
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import useLocalStorage from '@/hooks/use-local-storage';
@@ -121,7 +121,7 @@ export default function DashboardPage() {
             <Card key={feature.title} className="group overflow-hidden transition-all duration-300 hover:shadow-2xl hover:border-primary/50">
               <CardContent className="p-0">
                 <div className="relative h-48 w-full">
-                  <Image src={feature.img} alt={feature.title} fill objectFit="cover" data-ai-hint={feature.imgHint} />
+                  <Image src={feature.img} alt={feature.title} fill style={{objectFit:"cover"}} data-ai-hint={feature.imgHint} />
                 </div>
                 <div className="p-6">
                   <div className="flex items-center gap-4 mb-2">
