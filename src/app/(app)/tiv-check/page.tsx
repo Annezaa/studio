@@ -76,7 +76,7 @@ export default function TivCheckPage() {
     try {
       const canvas = document.createElement('canvas');
       canvas.width = videoRef.current.videoWidth;
-      canvas.height = videoSekarang buat pose detector tapi tidak dengan media pipe nya.current.videoHeight;
+      canvas.height = videoRef.current.videoHeight;
       const context = canvas.getContext('2d');
       if (!context) {
           throw new Error("Tidak bisa mendapatkan konteks canvas");
