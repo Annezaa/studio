@@ -10,7 +10,6 @@ import { Button } from '@/components/ui/button';
 import { Volume2, Loader, AlertCircle } from 'lucide-react';
 import { audioNarrator } from '@/ai/flows/audio-narrator-flow';
 import { useToast } from "@/hooks/use-toast";
-import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 const yogaPosesData = [
@@ -324,16 +323,16 @@ export default function TivCoachPage() {
                   <CarouselItem key={pose.name}>
                     <div className="p-1">
                       <Card>
-                        <CardContent className="flex flex-col lg:flex-row gap-6 p-6 items-center">
-                          <div className="w-full lg:w-2/3 flex-shrink-0 flex gap-4">
-                            <div className="relative w-2/3 aspect-[4/3] rounded-lg overflow-hidden border-2 border-primary">
+                        <CardContent className="flex flex-col lg:flex-row gap-6 p-6 items-start">
+                          <div className="w-full lg:w-1/2 flex-shrink-0">
+                            <div className="relative w-full aspect-[4/3] rounded-lg overflow-hidden border-2 border-primary">
                               <Image src={pose.image} alt={pose.name} layout="fill" objectFit="cover" data-ai-hint={pose.imgHint}/>
                             </div>
-                            <div className="relative w-1/3 aspect-[2/3] rounded-lg overflow-hidden">
+                            <div className="mt-4 relative w-full aspect-[4/3] rounded-lg overflow-hidden">
                               <Image src="https://images.unsplash.com/photo-1599447514193-14b533423234?q=80&w=1887&auto=format&fit=crop" alt="Yoga Instructor Avatar" layout="fill" objectFit="cover" data-ai-hint="yoga instructor avatar" />
                             </div>
                           </div>
-                          <div className="w-full lg:w-1/3 space-y-4">
+                          <div className="w-full lg:w-1/2 space-y-4">
                             <div className="space-y-2">
                               <Label htmlFor={`difficulty-${index}`}>Tingkat Kesulitan</Label>
                               <Select onValueChange={(value) => setDifficulty(value as Difficulty)} defaultValue={difficulty}>

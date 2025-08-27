@@ -1,7 +1,8 @@
+
 "use client";
 
 import { useState, useRef, useEffect } from 'react';
-import { Camera, Zap, CheckCircle, XCircle } from 'lucide-react';
+import { Camera as CameraIcon, Zap, CheckCircle, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -10,8 +11,9 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { correctYogaPosture, type CorrectYogaPostureOutput } from '@/ai/flows/correct-yoga-posture';
 import { useToast } from "@/hooks/use-toast";
 import { Pose, POSE_CONNECTIONS } from "@mediapipe/pose";
-import { Camera as MediaPipeCamera } from "@mediapipe/camera_utils";
+import * as cameraUtils from "@mediapipe/camera_utils";
 import { drawConnectors, drawLandmarks } from "@mediapipe/drawing_utils";
+import { cn } from '@/lib/utils';
 
 const yogaPoses = [
   "Downward-Facing Dog",
@@ -31,62 +33,70 @@ export default function TivCheckPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<CorrectYogaPostureOutput | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const cameraRef = useRef<cameraUtils.Camera | null>(null);
 
   useEffect(() => {
-    if (!isCameraOn || !videoRef.current || !canvasRef.current) {
-        return;
-    }
+    if (isCameraOn && videoRef.current && canvasRef.current) {
+        const pose = new Pose({
+            locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`,
+        });
 
-    const canvasCtx = canvasRef.current.getContext("2d");
-    if (!canvasCtx) return;
+        pose.setOptions({
+            modelComplexity: 1,
+            smoothLandmarks: true,
+            enableSegmentation: false,
+            minDetectionConfidence: 0.5,
+            minTrackingConfidence: 0.5,
+        });
 
-    const pose = new Pose({
-      locateFile: (file) =>
-        `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`,
-    });
+        pose.onResults((results) => {
+            if (!canvasRef.current) return;
+            const canvasCtx = canvasRef.current.getContext('2d');
+            if (!canvasCtx) return;
 
-    pose.setOptions({
-      modelComplexity: 1,
-      smoothLandmarks: true,
-      enableSegmentation: false,
-      minDetectionConfidence: 0.5,
-      minTrackingConfidence: 0.5,
-    });
-
-    pose.onResults((results) => {
-        if (!canvasRef.current) return;
-        canvasCtx.save();
-        canvasCtx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-        canvasCtx.drawImage(results.image, 0, 0, canvasRef.current.width, canvasRef.current.height);
-
-        if (results.poseLandmarks) {
-            drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, { color: "#00FF00", lineWidth: 4 });
-            drawLandmarks(canvasCtx, results.poseLandmarks, { color: "#FF0000", lineWidth: 2 });
-        }
-        canvasCtx.restore();
-    });
-
-    const camera = new MediaPipeCamera(videoRef.current, {
-        onFrame: async () => {
-            if (videoRef.current) {
-                await pose.send({ image: videoRef.current });
+            canvasCtx.save();
+            canvasCtx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+            
+            // Draw the landmarks
+            if (results.poseLandmarks) {
+                drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, { color: '#00FF00', lineWidth: 4 });
+                drawLandmarks(canvasCtx, results.poseLandmarks, { color: '#FF0000', lineWidth: 2 });
             }
-        },
-        width: 640,
-        height: 480,
-    });
-    camera.start();
+            canvasCtx.restore();
+        });
 
-    return () => {
-      camera.stop();
-      pose.close();
+        if (videoRef.current) {
+            cameraRef.current = new cameraUtils.Camera(videoRef.current, {
+                onFrame: async () => {
+                    if (videoRef.current && canvasRef.current) {
+                         // Flip the canvas context horizontally for a mirror effect
+                        const canvasCtx = canvasRef.current.getContext('2d');
+                        if (canvasCtx) {
+                            canvasCtx.setTransform(-1, 0, 0, 1, canvasRef.current.width, 0);
+                            await pose.send({ image: videoRef.current });
+                            canvasCtx.setTransform(1, 0, 0, 1, 0, 0); // Reset transform
+                        } else {
+                           await pose.send({ image: videoRef.current });
+                        }
+                    }
+                },
+                width: 640,
+                height: 480,
+            });
+            cameraRef.current.start();
+        }
+        
+        return () => {
+            pose.close();
+        }
     }
   }, [isCameraOn]);
 
 
   useEffect(() => {
     return () => {
-      // Turn off camera when component unmounts
+      // Cleanup camera on component unmount
+      cameraRef.current?.stop();
       if (videoRef.current && videoRef.current.srcObject) {
         const stream = videoRef.current.srcObject as MediaStream;
         stream.getTracks().forEach(track => track.stop());
@@ -96,6 +106,7 @@ export default function TivCheckPage() {
 
   async function toggleCamera() {
     if (isCameraOn) {
+      cameraRef.current?.stop();
       if (videoRef.current && videoRef.current.srcObject) {
         const stream = videoRef.current.srcObject as MediaStream;
         stream.getTracks().forEach(track => track.stop());
@@ -107,6 +118,7 @@ export default function TivCheckPage() {
         const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 } });
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
+          await videoRef.current.play();
         }
         setIsCameraOn(true);
         setError(null);
@@ -123,7 +135,7 @@ export default function TivCheckPage() {
   }
 
   async function handleCheckPosture() {
-    if (!videoRef.current || !canvasRef.current || !selectedPose) {
+    if (!videoRef.current || !selectedPose) {
       toast({
         title: "Input Tidak Lengkap",
         description: "Silakan aktifkan kamera dan pilih pose yoga.",
@@ -131,14 +143,26 @@ export default function TivCheckPage() {
       });
       return;
     }
-
+  
     setIsLoading(true);
     setResult(null);
     setError(null);
-
-    const canvas = canvasRef.current;
-    const dataUri = canvas.toDataURL('image/jpeg');
-
+  
+    // Create a temporary canvas to draw the current video frame
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = videoRef.current.videoWidth;
+    tempCanvas.height = videoRef.current.videoHeight;
+    const ctx = tempCanvas.getContext('2d');
+    if (!ctx) {
+        setError("Tidak dapat memproses gambar dari kamera.");
+        setIsLoading(false);
+        return;
+    }
+    // Flip the image horizontally to match the user's view
+    ctx.scale(-1, 1);
+    ctx.drawImage(videoRef.current, -tempCanvas.width, 0, tempCanvas.width, tempCanvas.height);
+    const dataUri = tempCanvas.toDataURL('image/jpeg');
+  
     try {
       const response = await correctYogaPosture({
         cameraFeedDataUri: dataUri,
@@ -170,19 +194,16 @@ export default function TivCheckPage() {
         <Card className="flex flex-col">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 font-headline">
-              <Camera className="h-6 w-6" />
+              <CameraIcon className="h-6 w-6" />
               Kamera Anda
             </CardTitle>
             <CardDescription>Arahkan kamera ke diri Anda saat melakukan pose yoga.</CardDescription>
           </CardHeader>
           <CardContent className="flex-grow flex flex-col items-center justify-center space-y-4">
             <div className="w-full aspect-video bg-secondary rounded-lg overflow-hidden flex items-center justify-center relative">
-               <video ref={videoRef} autoPlay playsInline className="hidden"></video>
-               {isCameraOn ? (
-                    <canvas ref={canvasRef} width={640} height={480} className="w-full h-full object-cover" />
-               ) : (
-                    <Camera className="h-16 w-16 text-muted-foreground" />
-               )}
+               {!isCameraOn && <CameraIcon className="h-16 w-16 text-muted-foreground" />}
+               <video ref={videoRef} autoPlay playsInline className={cn("w-full h-full object-cover transform -scale-x-100", !isCameraOn && "hidden")} />
+               <canvas ref={canvasRef} width={640} height={480} className={cn("absolute top-0 left-0 w-full h-full", !isCameraOn && "hidden")} />
             </div>
             <Button onClick={toggleCamera} variant={isCameraOn ? 'destructive' : 'default'} className="w-full">
               {isCameraOn ? 'Matikan Kamera' : 'Nyalakan Kamera'}

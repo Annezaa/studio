@@ -1,7 +1,8 @@
+
 "use client";
 import { useEffect, useRef } from "react";
 import { Pose, POSE_CONNECTIONS } from "@mediapipe/pose";
-import { Camera } from "@mediapipe/camera_utils";
+import * as cameraUtils from "@mediapipe/camera_utils";
 import { drawConnectors, drawLandmarks } from "@mediapipe/drawing_utils";
 
 export default function Page() {
@@ -38,21 +39,23 @@ export default function Page() {
       }
     });
 
-    const camera = new Camera(videoRef.current, {
-      onFrame: async () => {
-        if(videoRef.current) {
-            await pose.send({ image: videoRef.current });
-        }
-      },
-      width: 640,
-      height: 480,
-    });
-    camera.start();
+    if (videoRef.current) {
+        const camera = new cameraUtils.Camera(videoRef.current, {
+          onFrame: async () => {
+            if(videoRef.current) {
+                await pose.send({ image: videoRef.current });
+            }
+          },
+          width: 640,
+          height: 480,
+        });
+        camera.start();
 
-    return () => {
-      // Stop the camera and cleanup resources when the component unmounts
-      camera.stop();
-      pose.close();
+        return () => {
+          // Stop the camera and cleanup resources when the component unmounts
+          camera.stop();
+          pose.close();
+        }
     }
   }, []);
 
