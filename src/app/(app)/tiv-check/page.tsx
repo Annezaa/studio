@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from 'react';
+import Image from 'next/image';
 import { Camera as CameraIcon, Zap, CheckCircle, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -204,6 +205,20 @@ export default function TivCheckPage() {
                 <CardTitle className="font-headline">Hasil Analisis</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
+                {result.accuracyScore < 50 && (
+                  <div className="relative w-full h-40 rounded-lg overflow-hidden">
+                    <Image
+                      src="https://images.unsplash.com/photo-1541532713592-79a0317b6b77?q=80&w=1888&auto=format&fit=crop"
+                      alt="Coba lagi"
+                      layout="fill"
+                      objectFit="cover"
+                      data-ai-hint="encouragement motivation"
+                    />
+                     <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                      <p className="text-white text-lg font-bold">Terus berlatih, kamu pasti bisa!</p>
+                    </div>
+                  </div>
+                )}
                 <div>
                   <div className="flex justify-between items-center mb-1">
                     <p className="font-semibold">Skor Akurasi</p>
