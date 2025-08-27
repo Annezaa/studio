@@ -52,7 +52,6 @@ export default function TivCheckPage() {
 
     enableCamera();
     
-    // Cleanup function to stop media stream when component unmounts
     return () => {
       if (videoRef.current && videoRef.current.srcObject) {
         const stream = videoRef.current.srcObject as MediaStream;
@@ -83,6 +82,11 @@ export default function TivCheckPage() {
         if (!context) {
             throw new Error("Tidak bisa mendapatkan konteks canvas");
         }
+        
+        // Flip the canvas context horizontally to match the video feed
+        context.translate(canvas.width, 0);
+        context.scale(-1, 1);
+        
         context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
         const cameraFeedDataUri = canvas.toDataURL('image/jpeg');
         
@@ -124,7 +128,7 @@ export default function TivCheckPage() {
           </CardHeader>
           <CardContent className="flex-grow flex flex-col items-center justify-center space-y-4">
             <div className="w-full max-w-[640px] aspect-video bg-secondary rounded-lg overflow-hidden flex items-center justify-center relative">
-              <video ref={videoRef} className={cn("w-full h-full object-cover", !hasCameraPermission && "hidden")} autoPlay muted playsInline />
+              <video ref={videoRef} className={cn("w-full h-full object-cover transform scale-x-[-1]", !hasCameraPermission && "hidden")} autoPlay muted playsInline />
               {!hasCameraPermission && (
                 <div className="flex flex-col items-center gap-2 text-muted-foreground">
                     <CameraIcon className="h-16 w-16" />
