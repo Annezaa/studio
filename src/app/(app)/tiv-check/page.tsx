@@ -9,6 +9,9 @@ import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { correctYogaPosture, type CorrectYogaPostureOutput } from '@/ai/flows/correct-yoga-posture';
 import { useToast } from "@/hooks/use-toast";
+import { Pose, POSE_CONNECTIONS } from "@mediapipe/pose";
+import { Camera as MediaPipeCamera } from "@mediapipe/camera_utils";
+import { drawConnectors, drawLandmarks } from "@mediapipe/drawing_utils";
 
 const yogaPoses = [
   "Downward-Facing Dog",
@@ -30,6 +33,58 @@ export default function TivCheckPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!isCameraOn || !videoRef.current || !canvasRef.current) {
+        return;
+    }
+
+    const canvasCtx = canvasRef.current.getContext("2d");
+    if (!canvasCtx) return;
+
+    const pose = new Pose({
+      locateFile: (file) =>
+        `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`,
+    });
+
+    pose.setOptions({
+      modelComplexity: 1,
+      smoothLandmarks: true,
+      enableSegmentation: false,
+      minDetectionConfidence: 0.5,
+      minTrackingConfidence: 0.5,
+    });
+
+    pose.onResults((results) => {
+        if (!canvasRef.current) return;
+        canvasCtx.save();
+        canvasCtx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+        canvasCtx.drawImage(results.image, 0, 0, canvasRef.current.width, canvasRef.current.height);
+
+        if (results.poseLandmarks) {
+            drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, { color: "#00FF00", lineWidth: 4 });
+            drawLandmarks(canvasCtx, results.poseLandmarks, { color: "#FF0000", lineWidth: 2 });
+        }
+        canvasCtx.restore();
+    });
+
+    const camera = new MediaPipeCamera(videoRef.current, {
+        onFrame: async () => {
+            if (videoRef.current) {
+                await pose.send({ image: videoRef.current });
+            }
+        },
+        width: 640,
+        height: 480,
+    });
+    camera.start();
+
+    return () => {
+      camera.stop();
+      pose.close();
+    }
+  }, [isCameraOn]);
+
+
+  useEffect(() => {
     return () => {
       // Turn off camera when component unmounts
       if (videoRef.current && videoRef.current.srcObject) {
@@ -49,7 +104,7 @@ export default function TivCheckPage() {
       setIsCameraOn(false);
     } else {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 } });
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
         }
@@ -81,13 +136,7 @@ export default function TivCheckPage() {
     setResult(null);
     setError(null);
 
-    const video = videoRef.current;
     const canvas = canvasRef.current;
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    const context = canvas.getContext('2d');
-    context?.drawImage(video, 0, 0, canvas.width, canvas.height);
-
     const dataUri = canvas.toDataURL('image/jpeg');
 
     try {
@@ -127,11 +176,14 @@ export default function TivCheckPage() {
             <CardDescription>Arahkan kamera ke diri Anda saat melakukan pose yoga.</CardDescription>
           </CardHeader>
           <CardContent className="flex-grow flex flex-col items-center justify-center space-y-4">
-            <div className="w-full aspect-video bg-secondary rounded-lg overflow-hidden flex items-center justify-center">
-              <video ref={videoRef} autoPlay playsInline className={`w-full h-full object-cover ${!isCameraOn && 'hidden'}`}></video>
-              {!isCameraOn && <Camera className="h-16 w-16 text-muted-foreground" />}
+            <div className="w-full aspect-video bg-secondary rounded-lg overflow-hidden flex items-center justify-center relative">
+               <video ref={videoRef} autoPlay playsInline className="hidden"></video>
+               {isCameraOn ? (
+                    <canvas ref={canvasRef} width={640} height={480} className="w-full h-full object-cover" />
+               ) : (
+                    <Camera className="h-16 w-16 text-muted-foreground" />
+               )}
             </div>
-            <canvas ref={canvasRef} className="hidden"></canvas>
             <Button onClick={toggleCamera} variant={isCameraOn ? 'destructive' : 'default'} className="w-full">
               {isCameraOn ? 'Matikan Kamera' : 'Nyalakan Kamera'}
             </Button>
