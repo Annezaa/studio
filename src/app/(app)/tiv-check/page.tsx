@@ -60,14 +60,10 @@ export default function TivCheckPage() {
             // Draw the video frame onto the canvas
             canvasCtx.drawImage(results.image, 0, 0, canvasRef.current.width, canvasRef.current.height);
 
-            // Flip the canvas horizontally for a mirror effect before drawing landmarks
-            canvasCtx.translate(canvasRef.current.width, 0);
-            canvasCtx.scale(-1, 1);
-            
             // Draw the landmarks
             if (results.poseLandmarks) {
-                drawingUtils.drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, { color: "#00FF00", lineWidth: 4 });
-                drawingUtils.drawLandmarks(canvasCtx, results.poseLandmarks, { color: "#FF0000", lineWidth: 2 });
+                drawingUtils.drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, { color: "#FF00B0", lineWidth: 4 });
+                drawingUtils.drawLandmarks(canvasCtx, results.poseLandmarks, { color: "#B30079", lineWidth: 2 });
             }
             canvasCtx.restore();
         });
@@ -150,36 +146,37 @@ export default function TivCheckPage() {
   
     // Create a temporary canvas to draw the current video frame
     const tempCanvas = document.createElement('canvas');
-    tempCanvas.width = videoRef.current.videoWidth;
-    tempCanvas.height = videoRef.current.videoHeight;
-    const ctx = tempCanvas.getContext('2d');
-    if (!ctx) {
-        setError("Tidak dapat memproses gambar dari kamera.");
-        setIsLoading(false);
-        return;
-    }
-    // Flip the image horizontally to match the user's view
-    ctx.scale(-1, 1);
-    ctx.drawImage(videoRef.current, -tempCanvas.width, 0, tempCanvas.width, tempCanvas.height);
-    const dataUri = tempCanvas.toDataURL('image/jpeg');
-  
-    try {
-      const response = await correctYogaPosture({
-        cameraFeedDataUri: dataUri,
-        poseDescription: selectedPose,
-      });
-      setResult(response);
-    } catch (err) {
-      console.error("Error correcting posture:", err);
-      const errorMessage = err instanceof Error ? err.message : "Terjadi kesalahan yang tidak diketahui.";
-      setError(`Gagal menganalisis postur: ${errorMessage}`);
-      toast({
-        title: "Analisis Gagal",
-        description: `Gagal menganalisis postur: ${errorMessage}`,
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
+    if (videoRef.current) {
+        tempCanvas.width = videoRef.current.videoWidth;
+        tempCanvas.height = videoRef.current.videoHeight;
+        const ctx = tempCanvas.getContext('2d');
+        if (!ctx) {
+            setError("Tidak dapat memproses gambar dari kamera.");
+            setIsLoading(false);
+            return;
+        }
+
+        ctx.drawImage(videoRef.current, 0, 0, tempCanvas.width, tempCanvas.height);
+        const dataUri = tempCanvas.toDataURL('image/jpeg');
+      
+        try {
+          const response = await correctYogaPosture({
+            cameraFeedDataUri: dataUri,
+            poseDescription: selectedPose,
+          });
+          setResult(response);
+        } catch (err) {
+          console.error("Error correcting posture:", err);
+          const errorMessage = err instanceof Error ? err.message : "Terjadi kesalahan yang tidak diketahui.";
+          setError(`Gagal menganalisis postur: ${errorMessage}`);
+          toast({
+            title: "Analisis Gagal",
+            description: `Gagal menganalisis postur: ${errorMessage}`,
+            variant: "destructive",
+          });
+        } finally {
+          setIsLoading(false);
+        }
     }
   }
 
@@ -201,7 +198,7 @@ export default function TivCheckPage() {
           </CardHeader>
           <CardContent className="flex-grow flex flex-col items-center justify-center space-y-4">
             <div className="w-full aspect-video bg-secondary rounded-lg overflow-hidden flex items-center justify-center relative">
-               <video ref={videoRef} autoPlay playsInline className={cn("absolute top-0 left-0 w-full h-full object-cover transform -scale-x-100", !isCameraOn && "hidden")} />
+               <video ref={videoRef} autoPlay playsInline className={cn("absolute top-0 left-0 w-full h-full object-cover", !isCameraOn && "hidden")} />
                <canvas ref={canvasRef} width={640} height={480} className={cn("relative w-full h-full", !isCameraOn && "hidden")} />
                {!isCameraOn && <CameraIcon className="h-16 w-16 text-muted-foreground z-10" />}
             </div>
@@ -233,7 +230,7 @@ export default function TivCheckPage() {
           <Card>
             <CardHeader>
                 <CardTitle className="font-headline">2. Analisis Postur</CardTitle>
-            </CardHeader>
+            </Header>
             <CardContent>
                 <Button onClick={handleCheckPosture} disabled={!isCameraOn || !selectedPose || isLoading} className="w-full">
                 <Zap className="mr-2 h-4 w-4" />
