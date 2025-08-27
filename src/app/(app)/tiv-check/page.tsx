@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { Camera as CameraIcon, Zap, CheckCircle, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -24,7 +24,6 @@ const yogaPoses = [
 export default function TivCheckPage() {
   const { toast } = useToast();
   const videoRef = useRef<HTMLVideoElement>(null);
-  
   const [selectedPose, setSelectedPose] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<CorrectYogaPostureOutput | null>(null);
@@ -75,27 +74,26 @@ export default function TivCheckPage() {
     setError(null);
 
     try {
-        const canvas = document.createElement('canvas');
-        canvas.width = videoRef.current.videoWidth;
-        canvas.height = videoRef.current.videoHeight;
-        const context = canvas.getContext('2d');
-        if (!context) {
-            throw new Error("Tidak bisa mendapatkan konteks canvas");
-        }
-        
-        // Flip the canvas context horizontally to match the video feed
-        context.translate(canvas.width, 0);
-        context.scale(-1, 1);
-        
-        context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
-        const cameraFeedDataUri = canvas.toDataURL('image/jpeg');
-        
-        const response = await correctYogaPosture({
-            cameraFeedDataUri,
-            poseDescription: selectedPose,
-        });
+      const canvas = document.createElement('canvas');
+      canvas.width = videoRef.current.videoWidth;
+      canvas.height = videoSekarang buat pose detector tapi tidak dengan media pipe nya.current.videoHeight;
+      const context = canvas.getContext('2d');
+      if (!context) {
+          throw new Error("Tidak bisa mendapatkan konteks canvas");
+      }
+      
+      context.translate(canvas.width, 0);
+      context.scale(-1, 1);
+      
+      context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+      const cameraFeedDataUri = canvas.toDataURL('image/jpeg');
+      
+      const response = await correctYogaPosture({
+          cameraFeedDataUri,
+          poseDescription: selectedPose,
+      });
 
-        setResult(response);
+      setResult(response);
     } catch (err) {
       console.error("Pemeriksaan postur gagal:", err);
       const errorMessage = err instanceof Error ? err.message : "Gagal menganalisis postur.";
@@ -128,7 +126,16 @@ export default function TivCheckPage() {
           </CardHeader>
           <CardContent className="flex-grow flex flex-col items-center justify-center space-y-4">
             <div className="w-full max-w-[640px] aspect-video bg-secondary rounded-lg overflow-hidden flex items-center justify-center relative">
-              <video ref={videoRef} className={cn("w-full h-full object-cover transform scale-x-[-1]", !hasCameraPermission && "hidden")} autoPlay muted playsInline />
+              <video 
+                ref={videoRef} 
+                className={cn(
+                  "w-full h-full object-cover transform scale-x-[-1]",
+                  !hasCameraPermission && "hidden"
+                )} 
+                autoPlay 
+                muted 
+                playsInline 
+              />
               {!hasCameraPermission && (
                 <div className="flex flex-col items-center gap-2 text-muted-foreground">
                     <CameraIcon className="h-16 w-16" />
