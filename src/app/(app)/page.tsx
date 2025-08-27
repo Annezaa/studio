@@ -121,7 +121,7 @@ export default function DashboardPage() {
             <Card key={feature.title} className="group overflow-hidden transition-all duration-300 hover:shadow-2xl hover:border-primary/50">
               <CardContent className="p-0">
                 <div className="relative h-48 w-full">
-                  <Image src={feature.img} alt={feature.title} layout="fill" objectFit="cover" data-ai-hint={feature.imgHint} />
+                  <Image src={feature.img} alt={feature.title} fill objectFit="cover" data-ai-hint={feature.imgHint} />
                 </div>
                 <div className="p-6">
                   <div className="flex items-center gap-4 mb-2">
