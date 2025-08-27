@@ -1,19 +1,15 @@
 
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import { Camera as CameraIcon, Zap, CheckCircle, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { correctYogaPosture, type CorrectYogaPostureOutput } from '@/ai/flows/correct-yoga-posture';
+import type { CorrectYogaPostureOutput } from '@/ai/flows/correct-yoga-posture';
 import { useToast } from "@/hooks/use-toast";
-import { Pose, POSE_CONNECTIONS } from "@mediapipe/pose";
-import { Camera } from "@mediapipe/camera_utils";
-import * as drawingUtils from "@mediapipe/drawing_utils";
-import { cn } from '@/lib/utils';
 
 const yogaPoses = [
   "Downward-Facing Dog",
@@ -26,148 +22,17 @@ const yogaPoses = [
 
 export default function TivCheckPage() {
   const { toast } = useToast();
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const cameraInstanceRef = useRef<Camera | null>(null);
-  const poseInstanceRef = useRef<Pose | null>(null);
-
-  const [isCameraOn, setIsCameraOn] = useState(false);
+  
   const [selectedPose, setSelectedPose] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<CorrectYogaPostureOutput | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const stopCamera = useCallback(() => {
-    if (cameraInstanceRef.current) {
-      cameraInstanceRef.current.stop();
-      cameraInstanceRef.current = null;
-    }
-    if (poseInstanceRef.current) {
-      poseInstanceRef.current.close();
-      poseInstanceRef.current = null;
-    }
-    if (videoRef.current && videoRef.current.srcObject) {
-      const stream = videoRef.current.srcObject as MediaStream;
-      stream.getTracks().forEach(track => track.stop());
-      videoRef.current.srcObject = null;
-    }
-    setIsCameraOn(false);
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      stopCamera();
-    };
-  }, [stopCamera]);
-
-  const toggleCamera = useCallback(async () => {
-    if (isCameraOn) {
-      stopCamera();
-      return;
-    }
-
-    if (!videoRef.current || !canvasRef.current) return;
-
-    try {
-      const videoElement = videoRef.current;
-      const canvasElement = canvasRef.current;
-
-      const pose = new Pose({
-        locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`,
-      });
-      poseInstanceRef.current = pose;
-      
-      pose.setOptions({
-        modelComplexity: 1,
-        smoothLandmarks: true,
-        enableSegmentation: false,
-        minDetectionConfidence: 0.5,
-        minTrackingConfidence: 0.5,
-      });
-
-      pose.onResults((results) => {
-        const canvasCtx = canvasElement.getContext('2d');
-        if (!canvasCtx) return;
-
-        canvasCtx.save();
-        canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-        canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
-        if (results.poseLandmarks) {
-          drawingUtils.drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, { color: '#FF00B0', lineWidth: 4 });
-          drawingUtils.drawLandmarks(canvasCtx, results.poseLandmarks, { color: '#B30079', lineWidth: 2 });
-        }
-        canvasCtx.restore();
-      });
-      
-      const camera = new Camera(videoElement, {
-        onFrame: async () => {
-          if (videoElement) {
-            await pose.send({ image: videoElement });
-          }
-        },
-        width: 640,
-        height: 480,
-      });
-      cameraInstanceRef.current = camera;
-      await camera.start();
-      
-      setIsCameraOn(true);
-      setError(null);
-    } catch (err) {
-      console.error("Error accessing camera:", err);
-      setError("Tidak dapat mengakses kamera. Pastikan Anda telah memberikan izin.");
-      toast({
-        title: "Error Kamera",
-        description: "Tidak dapat mengakses kamera. Pastikan Anda telah memberikan izin.",
-        variant: "destructive",
-      });
-      stopCamera();
-    }
-  }, [isCameraOn, stopCamera, toast]);
-
   const handleCheckPosture = async () => {
-    if (!videoRef.current || !selectedPose || !isCameraOn) {
-      toast({
-        title: "Input Tidak Lengkap",
-        description: "Silakan aktifkan kamera dan pilih pose yoga.",
-        variant: "destructive",
+    toast({
+        title: "Fitur Dalam Perbaikan",
+        description: "Fungsionalitas deteksi postur sedang dalam perbaikan dan akan segera kembali.",
       });
-      return;
-    }
-
-    setIsLoading(true);
-    setResult(null);
-    setError(null);
-
-    try {
-      const tempCanvas = document.createElement('canvas');
-      if (!videoRef.current) throw new Error("Video reference is not available.");
-      
-      tempCanvas.width = videoRef.current.videoWidth;
-      tempCanvas.height = videoRef.current.videoHeight;
-      const ctx = tempCanvas.getContext('2d');
-      if (!ctx) throw new Error("Tidak dapat memproses gambar dari kamera.");
-      
-      ctx.drawImage(videoRef.current, 0, 0, tempCanvas.width, tempCanvas.height);
-      const dataUri = tempCanvas.toDataURL('image/jpeg');
-
-      const response = await correctYogaPosture({
-        cameraFeedDataUri: dataUri,
-        poseDescription: selectedPose,
-      });
-      setResult(response);
-    } catch (err) {
-      console.error("Error correcting posture:", err);
-      const errorMessage = err instanceof Error ? err.message : "Terjadi kesalahan yang tidak diketahui.";
-      setError(`Gagal menganalisis postur: ${errorMessage}`);
-      toast({
-        title: "Analisis Gagal",
-        description: `Gagal menganalisis postur: ${errorMessage}`,
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
   };
 
   return (
@@ -184,16 +49,14 @@ export default function TivCheckPage() {
               <CameraIcon className="h-6 w-6" />
               Kamera Anda
             </CardTitle>
-            <CardDescription>Arahkan kamera ke diri Anda saat melakukan pose yoga.</CardDescription>
+            <CardDescription>Detektor postur sedang dalam perbaikan. Fitur ini akan segera kembali.</CardDescription>
           </CardHeader>
           <CardContent className="flex-grow flex flex-col items-center justify-center space-y-4">
             <div className="w-full max-w-[640px] aspect-video bg-secondary rounded-lg overflow-hidden flex items-center justify-center relative">
-              <video ref={videoRef} autoPlay playsInline muted className="hidden" />
-              <canvas ref={canvasRef} width={640} height={480} className={cn("absolute inset-0 w-full h-full object-contain", { 'opacity-100': isCameraOn, 'opacity-0': !isCameraOn })} />
-              {!isCameraOn && <CameraIcon className="h-16 w-16 text-muted-foreground" />}
+              <CameraIcon className="h-16 w-16 text-muted-foreground" />
             </div>
-            <Button onClick={toggleCamera} variant={isCameraOn ? 'destructive' : 'default'} className="w-full max-w-[640px]">
-              {isCameraOn ? 'Matikan Kamera' : 'Nyalakan Kamera'}
+            <Button variant="default" className="w-full max-w-[640px]" disabled>
+              Nyalakan Kamera
             </Button>
           </CardContent>
         </Card>
@@ -204,7 +67,7 @@ export default function TivCheckPage() {
               <CardTitle className="font-headline">1. Pilih Pose</CardTitle>
             </CardHeader>
             <CardContent>
-              <Select onValueChange={setSelectedPose} value={selectedPose} disabled={!isCameraOn || isLoading}>
+              <Select onValueChange={setSelectedPose} value={selectedPose}>
                 <SelectTrigger>
                   <SelectValue placeholder="Pilih pose yoga..." />
                 </SelectTrigger>
@@ -222,9 +85,9 @@ export default function TivCheckPage() {
                 <CardTitle className="font-headline">2. Analisis Postur</CardTitle>
             </CardHeader>
             <CardContent>
-                <Button onClick={handleCheckPosture} disabled={!isCameraOn || !selectedPose || isLoading} className="w-full">
+                <Button onClick={handleCheckPosture} disabled={!selectedPose || isLoading} className="w-full">
                 <Zap className="mr-2 h-4 w-4" />
-                {isLoading ? 'Menganalisis...' : 'Periksa Postur Saya'}
+                {isLoading ? "Menganalisis..." : "Periksa Postur Saya"}
               </Button>
             </CardContent>
           </Card>
