@@ -1,9 +1,9 @@
 
 "use client";
 import { useEffect, useRef } from "react";
-import { Pose, POSE_CONNECTIONS } from "@mediapipe/pose";
-import * as cameraUtils from "@mediapipe/camera_utils";
-import { drawConnectors, drawLandmarks } from "@mediapipe/drawing_utils";
+import { Pose } from "@mediapipe/pose";
+import { Camera } from "@mediapipe/camera_utils";
+import * as drawingUtils from "@mediapipe/drawing_utils";
 
 export default function Page() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -28,19 +28,21 @@ export default function Page() {
     pose.onResults((results) => {
       if (!canvasRef.current) return;
       const canvasCtx = canvasRef.current.getContext("2d")!;
+      canvasCtx.save();
       canvasCtx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
       canvasCtx.drawImage(results.image, 0, 0, canvasRef.current.width, canvasRef.current.height);
 
       if (results.poseLandmarks) {
-        drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS,
+        drawingUtils.drawConnectors(canvasCtx, results.poseLandmarks, Pose.POSE_CONNECTIONS,
           { color: "#FF00B0", lineWidth: 4 }); // Fuchsia Pink
-        drawLandmarks(canvasCtx, results.poseLandmarks,
+        drawingUtils.drawLandmarks(canvasCtx, results.poseLandmarks,
           { color: "#B30079", lineWidth: 2 }); // Deep Orchid
       }
+      canvasCtx.restore();
     });
 
     if (videoRef.current) {
-        const camera = new cameraUtils.Camera(videoRef.current, {
+        const camera = new Camera(videoRef.current, {
           onFrame: async () => {
             if(videoRef.current) {
                 await pose.send({ image: videoRef.current });
