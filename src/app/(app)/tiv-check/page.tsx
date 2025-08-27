@@ -11,8 +11,8 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { correctYogaPosture, type CorrectYogaPostureOutput } from '@/ai/flows/correct-yoga-posture';
 import { useToast } from "@/hooks/use-toast";
 import { Pose, POSE_CONNECTIONS } from "@mediapipe/pose";
-import * as cameraUtils from "@mediapipe/camera_utils";
-import { drawConnectors, drawLandmarks } from "@mediapipe/drawing_utils";
+import { Camera } from "@mediapipe/camera_utils";
+import * as drawingUtils from "@mediapipe/drawing_utils";
 import { cn } from '@/lib/utils';
 
 const yogaPoses = [
@@ -33,7 +33,7 @@ export default function TivCheckPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<CorrectYogaPostureOutput | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const cameraRef = useRef<cameraUtils.Camera | null>(null);
+  const cameraRef = useRef<Camera | null>(null);
 
   useEffect(() => {
     if (isCameraOn && videoRef.current && canvasRef.current) {
@@ -57,27 +57,26 @@ export default function TivCheckPage() {
             canvasCtx.save();
             canvasCtx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
             
+            // Draw the video frame onto the canvas
+            canvasCtx.drawImage(results.image, 0, 0, canvasRef.current.width, canvasRef.current.height);
+
+            // Flip the canvas horizontally for a mirror effect before drawing landmarks
+            canvasCtx.translate(canvasRef.current.width, 0);
+            canvasCtx.scale(-1, 1);
+            
             // Draw the landmarks
             if (results.poseLandmarks) {
-                drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, { color: '#00FF00', lineWidth: 4 });
-                drawLandmarks(canvasCtx, results.poseLandmarks, { color: '#FF0000', lineWidth: 2 });
+                drawingUtils.drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, { color: "#00FF00", lineWidth: 4 });
+                drawingUtils.drawLandmarks(canvasCtx, results.poseLandmarks, { color: "#FF0000", lineWidth: 2 });
             }
             canvasCtx.restore();
         });
 
         if (videoRef.current) {
-            cameraRef.current = new cameraUtils.Camera(videoRef.current, {
+            cameraRef.current = new Camera(videoRef.current, {
                 onFrame: async () => {
-                    if (videoRef.current && canvasRef.current) {
-                         // Flip the canvas context horizontally for a mirror effect
-                        const canvasCtx = canvasRef.current.getContext('2d');
-                        if (canvasCtx) {
-                            canvasCtx.setTransform(-1, 0, 0, 1, canvasRef.current.width, 0);
-                            await pose.send({ image: videoRef.current });
-                            canvasCtx.setTransform(1, 0, 0, 1, 0, 0); // Reset transform
-                        } else {
-                           await pose.send({ image: videoRef.current });
-                        }
+                    if (videoRef.current) {
+                       await pose.send({ image: videoRef.current });
                     }
                 },
                 width: 640,
@@ -88,6 +87,7 @@ export default function TivCheckPage() {
         
         return () => {
             pose.close();
+            cameraRef.current?.stop();
         }
     }
   }, [isCameraOn]);
@@ -201,9 +201,9 @@ export default function TivCheckPage() {
           </CardHeader>
           <CardContent className="flex-grow flex flex-col items-center justify-center space-y-4">
             <div className="w-full aspect-video bg-secondary rounded-lg overflow-hidden flex items-center justify-center relative">
-               {!isCameraOn && <CameraIcon className="h-16 w-16 text-muted-foreground" />}
-               <video ref={videoRef} autoPlay playsInline className={cn("w-full h-full object-cover transform -scale-x-100", !isCameraOn && "hidden")} />
-               <canvas ref={canvasRef} width={640} height={480} className={cn("absolute top-0 left-0 w-full h-full", !isCameraOn && "hidden")} />
+               <video ref={videoRef} autoPlay playsInline className={cn("absolute top-0 left-0 w-full h-full object-cover transform -scale-x-100", !isCameraOn && "hidden")} />
+               <canvas ref={canvasRef} width={640} height={480} className={cn("relative w-full h-full", !isCameraOn && "hidden")} />
+               {!isCameraOn && <CameraIcon className="h-16 w-16 text-muted-foreground z-10" />}
             </div>
             <Button onClick={toggleCamera} variant={isCameraOn ? 'destructive' : 'default'} className="w-full">
               {isCameraOn ? 'Matikan Kamera' : 'Nyalakan Kamera'}
