@@ -14,12 +14,12 @@ import { useToast } from "@/hooks/use-toast";
 import { cn } from '@/lib/utils';
 
 const yogaPoses = [
-  "Downward-Facing Dog",
-  "Warrior II",
-  "Tree Pose",
-  "Triangle Pose",
-  "Bridge Pose",
-  "Cat-Cow Pose"
+  { name: "Downward-Facing Dog", image: "https://images.unsplash.com/photo-1591291621265-b3a88b41b4a9?q=80&w=1887&auto=format&fit=crop", hint: "downward dog yoga" },
+  { name: "Warrior II", image: "https://images.unsplash.com/photo-1597964448532-a5b17a126d83?q=80&w=1887&auto=format&fit=crop", hint: "warrior two yoga" },
+  { name: "Tree Pose", image: "https://images.unsplash.com/photo-1593811167563-0b2a382103c8?q=80&w=1887&auto=format&fit=crop", hint: "tree pose yoga" },
+  { name: "Triangle Pose", image: "https://images.unsplash.com/photo-1610664921896-29a5099f7a7a?q=80&w=1887&auto=format&fit=crop", hint: "triangle pose yoga" },
+  { name: "Bridge Pose", image: "https://images.unsplash.com/photo-1545389336-cf090694435e?q=80&w=1964&auto=format&fit=crop", hint: "bridge pose yoga" },
+  { name: "Cat-Cow Pose", image: "https://images.unsplash.com/photo-1545389336-cf090694435e?q=80&w=1964&auto=format&fit=crop", hint: "cat cow yoga" }
 ];
 
 export default function TivCheckPage() {
@@ -108,6 +108,9 @@ export default function TivCheckPage() {
       setIsLoading(false);
     }
   };
+  
+  const poseImage = yogaPoses.find(p => p.name === selectedPose)?.image;
+  const poseHint = yogaPoses.find(p => p.name === selectedPose)?.hint;
 
   return (
     <div className="space-y-8">
@@ -131,14 +134,13 @@ export default function TivCheckPage() {
                 ref={videoRef} 
                 className={cn(
                   "w-full h-full object-cover transform scale-x-[-1]",
-                  !hasCameraPermission && "hidden"
                 )} 
                 autoPlay 
                 muted 
                 playsInline 
               />
               {!hasCameraPermission && (
-                <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-secondary gap-2 text-muted-foreground">
                     <CameraIcon className="h-16 w-16" />
                     <p>Mengaktifkan kamera...</p>
                 </div>
@@ -172,7 +174,7 @@ export default function TivCheckPage() {
                 </SelectTrigger>
                 <SelectContent>
                   {yogaPoses.map(pose => (
-                    <SelectItem key={pose} value={pose}>{pose}</SelectItem>
+                    <SelectItem key={pose.name} value={pose.name}>{pose.name}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -205,17 +207,17 @@ export default function TivCheckPage() {
                 <CardTitle className="font-headline">Hasil Analisis</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {result.accuracyScore < 50 && (
+                {result.accuracyScore < 50 && poseImage && (
                   <div className="relative w-full h-40 rounded-lg overflow-hidden">
                     <Image
-                      src="https://images.unsplash.com/photo-1541532713592-79a0317b6b77?q=80&w=1888&auto=format&fit=crop"
-                      alt="Coba lagi"
+                      src={poseImage}
+                      alt={`Contoh pose ${selectedPose} yang benar`}
                       layout="fill"
                       objectFit="cover"
-                      data-ai-hint="encouragement motivation"
+                      data-ai-hint={poseHint}
                     />
-                     <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                      <p className="text-white text-lg font-bold">Terus berlatih, kamu pasti bisa!</p>
+                     <div className="absolute inset-0 bg-black/50 flex items-center justify-center p-4">
+                      <p className="text-white text-center text-lg font-bold">Ini adalah contoh pose yang benar. Terus berlatih, kamu pasti bisa!</p>
                     </div>
                   </div>
                 )}
