@@ -37,61 +37,60 @@ export default function TivCheckPage() {
 
   useEffect(() => {
     if (isCameraOn && videoRef.current && canvasRef.current) {
-        const pose = new Pose({
-            locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`,
-        });
+      const pose = new Pose({
+        locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`,
+      });
 
-        pose.setOptions({
-            modelComplexity: 1,
-            smoothLandmarks: true,
-            enableSegmentation: false,
-            minDetectionConfidence: 0.5,
-            minTrackingConfidence: 0.5,
-        });
+      pose.setOptions({
+        modelComplexity: 1,
+        smoothLandmarks: true,
+        enableSegmentation: false,
+        minDetectionConfidence: 0.5,
+        minTrackingConfidence: 0.5,
+      });
 
-        pose.onResults((results) => {
-            if (!canvasRef.current) return;
-            const canvasCtx = canvasRef.current.getContext('2d');
-            if (!canvasCtx) return;
+      pose.onResults((results) => {
+        if (!canvasRef.current) return;
+        const canvasCtx = canvasRef.current.getContext('2d');
+        if (!canvasCtx) return;
 
-            canvasCtx.save();
-            canvasCtx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-            
-            // Draw the video frame onto the canvas
-            canvasCtx.drawImage(results.image, 0, 0, canvasRef.current.width, canvasRef.current.height);
-
-            // Draw the landmarks
-            if (results.poseLandmarks) {
-                drawingUtils.drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, { color: "#FF00B0", lineWidth: 4 });
-                drawingUtils.drawLandmarks(canvasCtx, results.poseLandmarks, { color: "#B30079", lineWidth: 2 });
-            }
-            canvasCtx.restore();
-        });
-
-        if (videoRef.current) {
-            cameraRef.current = new Camera(videoRef.current, {
-                onFrame: async () => {
-                    if (videoRef.current) {
-                       await pose.send({ image: videoRef.current });
-                    }
-                },
-                width: 640,
-                height: 480,
-            });
-            cameraRef.current.start();
-        }
+        canvasCtx.save();
+        canvasCtx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
         
-        return () => {
-            pose.close();
-            cameraRef.current?.stop();
+        // Draw the video frame
+        canvasCtx.drawImage(results.image, 0, 0, canvasRef.current.width, canvasRef.current.height);
+
+        // Draw the pose landmarks
+        if (results.poseLandmarks) {
+          drawingUtils.drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, { color: "#00FF00", lineWidth: 4 });
+          drawingUtils.drawLandmarks(canvasCtx, results.poseLandmarks, { color: "#FF0000", lineWidth: 2 });
         }
+        canvasCtx.restore();
+      });
+
+      if (videoRef.current) {
+        cameraRef.current = new Camera(videoRef.current, {
+          onFrame: async () => {
+            if (videoRef.current) {
+              await pose.send({ image: videoRef.current });
+            }
+          },
+          width: 640,
+          height: 480,
+        });
+        cameraRef.current.start();
+      }
+      
+      return () => {
+        pose.close();
+        cameraRef.current?.stop();
+      };
     }
   }, [isCameraOn]);
 
 
   useEffect(() => {
     return () => {
-      // Cleanup camera on component unmount
       cameraRef.current?.stop();
       if (videoRef.current && videoRef.current.srcObject) {
         const stream = videoRef.current.srcObject as MediaStream;
@@ -144,39 +143,41 @@ export default function TivCheckPage() {
     setResult(null);
     setError(null);
   
-    // Create a temporary canvas to draw the current video frame
     const tempCanvas = document.createElement('canvas');
-    if (videoRef.current) {
-        tempCanvas.width = videoRef.current.videoWidth;
-        tempCanvas.height = videoRef.current.videoHeight;
-        const ctx = tempCanvas.getContext('2d');
-        if (!ctx) {
-            setError("Tidak dapat memproses gambar dari kamera.");
-            setIsLoading(false);
-            return;
-        }
+    if (!videoRef.current) {
+      setIsLoading(false);
+      return;
+    }
 
-        ctx.drawImage(videoRef.current, 0, 0, tempCanvas.width, tempCanvas.height);
-        const dataUri = tempCanvas.toDataURL('image/jpeg');
-      
-        try {
-          const response = await correctYogaPosture({
-            cameraFeedDataUri: dataUri,
-            poseDescription: selectedPose,
-          });
-          setResult(response);
-        } catch (err) {
-          console.error("Error correcting posture:", err);
-          const errorMessage = err instanceof Error ? err.message : "Terjadi kesalahan yang tidak diketahui.";
-          setError(`Gagal menganalisis postur: ${errorMessage}`);
-          toast({
-            title: "Analisis Gagal",
-            description: `Gagal menganalisis postur: ${errorMessage}`,
-            variant: "destructive",
-          });
-        } finally {
-          setIsLoading(false);
-        }
+    tempCanvas.width = videoRef.current.videoWidth;
+    tempCanvas.height = videoRef.current.videoHeight;
+    const ctx = tempCanvas.getContext('2d');
+    if (!ctx) {
+      setError("Tidak dapat memproses gambar dari kamera.");
+      setIsLoading(false);
+      return;
+    }
+
+    ctx.drawImage(videoRef.current, 0, 0, tempCanvas.width, tempCanvas.height);
+    const dataUri = tempCanvas.toDataURL('image/jpeg');
+  
+    try {
+      const response = await correctYogaPosture({
+        cameraFeedDataUri: dataUri,
+        poseDescription: selectedPose,
+      });
+      setResult(response);
+    } catch (err) {
+      console.error("Error correcting posture:", err);
+      const errorMessage = err instanceof Error ? err.message : "Terjadi kesalahan yang tidak diketahui.";
+      setError(`Gagal menganalisis postur: ${errorMessage}`);
+      toast({
+        title: "Analisis Gagal",
+        description: `Gagal menganalisis postur: ${errorMessage}`,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -199,8 +200,8 @@ export default function TivCheckPage() {
           <CardContent className="flex-grow flex flex-col items-center justify-center space-y-4">
             <div className="w-full aspect-video bg-secondary rounded-lg overflow-hidden flex items-center justify-center relative">
                <video ref={videoRef} autoPlay playsInline className={cn("absolute top-0 left-0 w-full h-full object-cover", !isCameraOn && "hidden")} />
-               <canvas ref={canvasRef} width={640} height={480} className={cn("relative w-full h-full", !isCameraOn && "hidden")} />
-               {!isCameraOn && <CameraIcon className="h-16 w-16 text-muted-foreground z-10" />}
+               <canvas ref={canvasRef} width={640} height={480} className={cn("absolute top-0 left-0 w-full h-full", !isCameraOn && "hidden")} />
+               {!isCameraOn && <CameraIcon className="h-16 w-16 text-muted-foreground" />}
             </div>
             <Button onClick={toggleCamera} variant={isCameraOn ? 'destructive' : 'default'} className="w-full">
               {isCameraOn ? 'Matikan Kamera' : 'Nyalakan Kamera'}
@@ -263,7 +264,7 @@ export default function TivCheckPage() {
                 <div>
                   <p className="font-semibold mb-2">Umpan Balik:</p>
                   <Alert>
-                    <CheckCircle className="h-4 w-4 text-accent" />
+                    <CheckCircle className="h-4 w-4 text-primary" />
                     <AlertDescription className="text-foreground">{result.feedback}</AlertDescription>
                   </Alert>
                 </div>
