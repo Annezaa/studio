@@ -40,7 +40,7 @@ export default function TivCheckPage() {
         }
         setHasCameraPermission(true);
       } catch (err) {
-        console.error("Error accessing camera:", err);
+        console.error("Error saat mengakses kamera:", err);
         setHasCameraPermission(false);
         toast({
           variant: "destructive",
@@ -97,7 +97,7 @@ export default function TivCheckPage() {
 
         setResult(response);
     } catch (err) {
-      console.error("Posture check failed:", err);
+      console.error("Pemeriksaan postur gagal:", err);
       const errorMessage = err instanceof Error ? err.message : "Gagal menganalisis postur.";
       setError(errorMessage);
       toast({
