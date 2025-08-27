@@ -69,16 +69,9 @@ export default function TivCheckPage() {
     if (!videoRef.current || !canvasRef.current) return;
 
     try {
-      // Get camera permissions and stream
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 } });
-      videoRef.current.srcObject = stream;
-      
       const videoElement = videoRef.current;
       const canvasElement = canvasRef.current;
-      const canvasCtx = canvasElement.getContext('2d');
-      if (!canvasCtx) throw new Error("Could not get canvas context");
 
-      // Initialize Pose
       const pose = new Pose({
         locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`,
       });
@@ -92,8 +85,10 @@ export default function TivCheckPage() {
         minTrackingConfidence: 0.5,
       });
 
-      // Set up pose results callback
       pose.onResults((results) => {
+        const canvasCtx = canvasElement.getContext('2d');
+        if (!canvasCtx) return;
+
         canvasCtx.save();
         canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
         canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
@@ -104,10 +99,9 @@ export default function TivCheckPage() {
         canvasCtx.restore();
       });
       
-      // Initialize and start Camera
       const camera = new Camera(videoElement, {
         onFrame: async () => {
-          if (videoElement.readyState === 4) { // Check if video is ready
+          if (videoElement) {
             await pose.send({ image: videoElement });
           }
         },
@@ -116,7 +110,7 @@ export default function TivCheckPage() {
       });
       cameraInstanceRef.current = camera;
       await camera.start();
-
+      
       setIsCameraOn(true);
       setError(null);
     } catch (err) {
