@@ -10,6 +10,7 @@ import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { correctYogaPosture, type CorrectYogaPostureOutput } from '@/ai/flows/correct-yoga-posture';
 import { useToast } from "@/hooks/use-toast";
+import { cn } from '@/lib/utils';
 
 const yogaPoses = [
   "Downward-Facing Dog",
@@ -30,23 +31,35 @@ export default function TivCheckPage() {
   const [error, setError] = useState<string | null>(null);
   const [hasCameraPermission, setHasCameraPermission] = useState(false);
 
-  const enableCamera = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
+  useEffect(() => {
+    const enableCamera = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+        setHasCameraPermission(true);
+      } catch (err) {
+        console.error("Error accessing camera:", err);
+        setHasCameraPermission(false);
+        toast({
+          variant: "destructive",
+          title: "Akses Kamera Ditolak",
+          description: "Harap izinkan akses kamera di pengaturan browser Anda untuk menggunakan fitur ini.",
+        });
       }
-      setHasCameraPermission(true);
-    } catch (err) {
-      console.error("Error accessing camera:", err);
-      setHasCameraPermission(false);
-      toast({
-        variant: "destructive",
-        title: "Akses Kamera Ditolak",
-        description: "Harap izinkan akses kamera di pengaturan browser Anda untuk menggunakan fitur ini.",
-      });
-    }
-  };
+    };
+
+    enableCamera();
+    
+    // Cleanup function to stop media stream when component unmounts
+    return () => {
+      if (videoRef.current && videoRef.current.srcObject) {
+        const stream = videoRef.current.srcObject as MediaStream;
+        stream.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, [toast]);
 
   const handleCheckPosture = async () => {
     if (!selectedPose) {
@@ -93,16 +106,6 @@ export default function TivCheckPage() {
     }
   };
 
-  useEffect(() => {
-    // Cleanup function to stop media stream when component unmounts
-    return () => {
-      if (videoRef.current && videoRef.current.srcObject) {
-        const stream = videoRef.current.srcObject as MediaStream;
-        stream.getTracks().forEach(track => track.stop());
-      }
-    };
-  }, []);
-
   return (
     <div className="space-y-8">
       <header className="space-y-2">
@@ -121,23 +124,25 @@ export default function TivCheckPage() {
           </CardHeader>
           <CardContent className="flex-grow flex flex-col items-center justify-center space-y-4">
             <div className="w-full max-w-[640px] aspect-video bg-secondary rounded-lg overflow-hidden flex items-center justify-center relative">
-              {hasCameraPermission ? (
-                <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline />
-              ) : (
+              <video ref={videoRef} className={cn("w-full h-full object-cover", !hasCameraPermission && "hidden")} autoPlay muted playsInline />
+              {!hasCameraPermission && (
                 <div className="flex flex-col items-center gap-2 text-muted-foreground">
                     <CameraIcon className="h-16 w-16" />
-                    <p>Kamera tidak aktif</p>
+                    <p>Mengaktifkan kamera...</p>
                 </div>
               )}
             </div>
-            {!hasCameraPermission && (
-              <Button onClick={enableCamera} variant="default" className="w-full max-w-[640px]">
-                Nyalakan Kamera
-              </Button>
-            )}
              {hasCameraPermission && !isLoading && (
                  <Alert>
                     <AlertDescription>Posisikan diri Anda di depan kamera dan klik "Periksa Postur Saya".</AlertDescription>
+                </Alert>
+            )}
+             {!hasCameraPermission && (
+                <Alert variant="destructive">
+                    <AlertTitle>Memerlukan Izin Kamera</AlertTitle>
+                    <AlertDescription>
+                        Harap izinkan akses kamera di browser Anda untuk melanjutkan.
+                    </AlertDescription>
                 </Alert>
             )}
           </CardContent>
