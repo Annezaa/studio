@@ -1,7 +1,6 @@
-
 "use client";
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { Camera as CameraIcon, Zap, CheckCircle, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -28,95 +27,96 @@ export default function TivCheckPage() {
   const { toast } = useToast();
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const cameraInstanceRef = useRef<Camera | null>(null);
+  const poseInstanceRef = useRef<Pose | null>(null);
+
   const [isCameraOn, setIsCameraOn] = useState(false);
   const [selectedPose, setSelectedPose] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<CorrectYogaPostureOutput | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const cameraRef = useRef<Camera | null>(null);
 
-  useEffect(() => {
-    if (isCameraOn && videoRef.current && canvasRef.current) {
-      const pose = new Pose({
-        locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`,
-      });
-
-      pose.setOptions({
-        modelComplexity: 1,
-        smoothLandmarks: true,
-        enableSegmentation: false,
-        minDetectionConfidence: 0.5,
-        minTrackingConfidence: 0.5,
-      });
-
-      pose.onResults((results) => {
-        if (!canvasRef.current) return;
-        const canvasCtx = canvasRef.current.getContext('2d');
-        if (!canvasCtx) return;
-
-        canvasCtx.save();
-        canvasCtx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-        
-        // Draw the video frame
-        canvasCtx.drawImage(results.image, 0, 0, canvasRef.current.width, canvasRef.current.height);
-
-        // Draw the pose landmarks
-        if (results.poseLandmarks) {
-          drawingUtils.drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, { color: "#00FF00", lineWidth: 4 });
-          drawingUtils.drawLandmarks(canvasCtx, results.poseLandmarks, { color: "#FF0000", lineWidth: 2 });
-        }
-        canvasCtx.restore();
-      });
-
-      if (videoRef.current) {
-        cameraRef.current = new Camera(videoRef.current, {
-          onFrame: async () => {
-            if (videoRef.current) {
-              await pose.send({ image: videoRef.current });
-            }
-          },
-          width: 640,
-          height: 480,
-        });
-        cameraRef.current.start();
-      }
-      
-      return () => {
-        pose.close();
-        cameraRef.current?.stop();
-      };
+  // Function to stop the camera and clean up resources
+  const stopCamera = useCallback(() => {
+    if (cameraInstanceRef.current) {
+      cameraInstanceRef.current.stop();
+      cameraInstanceRef.current = null;
     }
-  }, [isCameraOn]);
-
-
-  useEffect(() => {
-    return () => {
-      cameraRef.current?.stop();
-      if (videoRef.current && videoRef.current.srcObject) {
-        const stream = videoRef.current.srcObject as MediaStream;
-        stream.getTracks().forEach(track => track.stop());
-      }
-    };
+    if (poseInstanceRef.current) {
+      poseInstanceRef.current.close();
+      poseInstanceRef.current = null;
+    }
+    if (videoRef.current && videoRef.current.srcObject) {
+      const stream = videoRef.current.srcObject as MediaStream;
+      stream.getTracks().forEach(track => track.stop());
+      videoRef.current.srcObject = null;
+    }
+    setIsCameraOn(false);
   }, []);
 
-  async function toggleCamera() {
+  // Cleanup on component unmount
+  useEffect(() => {
+    return () => {
+      stopCamera();
+    };
+  }, [stopCamera]);
+
+  const toggleCamera = async () => {
     if (isCameraOn) {
-      cameraRef.current?.stop();
-      if (videoRef.current && videoRef.current.srcObject) {
-        const stream = videoRef.current.srcObject as MediaStream;
-        stream.getTracks().forEach(track => track.stop());
-        videoRef.current.srcObject = null;
-      }
-      setIsCameraOn(false);
+      stopCamera();
     } else {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 } });
-        if (videoRef.current) {
+        if (videoRef.current && canvasRef.current) {
           videoRef.current.srcObject = stream;
-          await videoRef.current.play();
+
+          const videoElement = videoRef.current;
+          const canvasElement = canvasRef.current;
+          const canvasCtx = canvasElement.getContext('2d');
+
+          if (!canvasCtx) {
+            throw new Error("Could not get canvas context");
+          }
+
+          const pose = new Pose({
+            locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`,
+          });
+          poseInstanceRef.current = pose;
+
+          pose.setOptions({
+            modelComplexity: 1,
+            smoothLandmarks: true,
+            enableSegmentation: true,
+            minDetectionConfidence: 0.5,
+            minTrackingConfidence: 0.5,
+          });
+
+          pose.onResults((results) => {
+            canvasCtx.save();
+            canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+            canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
+            if (results.poseLandmarks) {
+              drawingUtils.drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, { color: '#00FF00', lineWidth: 4 });
+              drawingUtils.drawLandmarks(canvasCtx, results.poseLandmarks, { color: '#FF0000', lineWidth: 2 });
+            }
+            canvasCtx.restore();
+          });
+          
+          const camera = new Camera(videoElement, {
+            onFrame: async () => {
+              if (videoElement.readyState === 4) { // Check if video is ready
+                await pose.send({ image: videoElement });
+              }
+            },
+            width: 640,
+            height: 480,
+          });
+          cameraInstanceRef.current = camera;
+          camera.start();
+
+          setIsCameraOn(true);
+          setError(null);
         }
-        setIsCameraOn(true);
-        setError(null);
       } catch (err) {
         console.error("Error accessing camera:", err);
         setError("Tidak dapat mengakses kamera. Pastikan Anda telah memberikan izin.");
@@ -125,12 +125,13 @@ export default function TivCheckPage() {
           description: "Tidak dapat mengakses kamera. Pastikan Anda telah memberikan izin.",
           variant: "destructive",
         });
+        stopCamera();
       }
     }
-  }
+  };
 
-  async function handleCheckPosture() {
-    if (!videoRef.current || !selectedPose) {
+  const handleCheckPosture = async () => {
+    if (!videoRef.current || !selectedPose || !isCameraOn) {
       toast({
         title: "Input Tidak Lengkap",
         description: "Silakan aktifkan kamera dan pilih pose yoga.",
@@ -138,30 +139,25 @@ export default function TivCheckPage() {
       });
       return;
     }
-  
+
     setIsLoading(true);
     setResult(null);
     setError(null);
-  
-    const tempCanvas = document.createElement('canvas');
-    if (!videoRef.current) {
-      setIsLoading(false);
-      return;
-    }
 
-    tempCanvas.width = videoRef.current.videoWidth;
-    tempCanvas.height = videoRef.current.videoHeight;
-    const ctx = tempCanvas.getContext('2d');
-    if (!ctx) {
-      setError("Tidak dapat memproses gambar dari kamera.");
-      setIsLoading(false);
-      return;
-    }
-
-    ctx.drawImage(videoRef.current, 0, 0, tempCanvas.width, tempCanvas.height);
-    const dataUri = tempCanvas.toDataURL('image/jpeg');
-  
     try {
+      const tempCanvas = document.createElement('canvas');
+      if (!videoRef.current) {
+        throw new Error("Video reference is not available.");
+      }
+      tempCanvas.width = videoRef.current.videoWidth;
+      tempCanvas.height = videoRef.current.videoHeight;
+      const ctx = tempCanvas.getContext('2d');
+      if (!ctx) {
+        throw new Error("Tidak dapat memproses gambar dari kamera.");
+      }
+      ctx.drawImage(videoRef.current, 0, 0, tempCanvas.width, tempCanvas.height);
+      const dataUri = tempCanvas.toDataURL('image/jpeg');
+
       const response = await correctYogaPosture({
         cameraFeedDataUri: dataUri,
         poseDescription: selectedPose,
@@ -179,7 +175,7 @@ export default function TivCheckPage() {
     } finally {
       setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="space-y-8">
@@ -198,12 +194,12 @@ export default function TivCheckPage() {
             <CardDescription>Arahkan kamera ke diri Anda saat melakukan pose yoga.</CardDescription>
           </CardHeader>
           <CardContent className="flex-grow flex flex-col items-center justify-center space-y-4">
-            <div className="w-full aspect-video bg-secondary rounded-lg overflow-hidden flex items-center justify-center relative">
-               <video ref={videoRef} autoPlay playsInline className={cn("absolute top-0 left-0 w-full h-full object-cover", !isCameraOn && "hidden")} />
-               <canvas ref={canvasRef} width={640} height={480} className={cn("absolute top-0 left-0 w-full h-full", !isCameraOn && "hidden")} />
-               {!isCameraOn && <CameraIcon className="h-16 w-16 text-muted-foreground" />}
+            <div className="w-full max-w-[640px] aspect-video bg-secondary rounded-lg overflow-hidden flex items-center justify-center relative">
+              <video ref={videoRef} autoPlay playsInline muted className="hidden" />
+              <canvas ref={canvasRef} width={640} height={480} className={cn("absolute inset-0 w-full h-full object-contain", { 'opacity-0': !isCameraOn })} />
+              {!isCameraOn && <CameraIcon className="h-16 w-16 text-muted-foreground" />}
             </div>
-            <Button onClick={toggleCamera} variant={isCameraOn ? 'destructive' : 'default'} className="w-full">
+            <Button onClick={toggleCamera} variant={isCameraOn ? 'destructive' : 'default'} className="w-full max-w-[640px]">
               {isCameraOn ? 'Matikan Kamera' : 'Nyalakan Kamera'}
             </Button>
           </CardContent>
