@@ -17,8 +17,6 @@ const features = [
     description: 'Analisis postur yoga Anda secara real-time dengan AI.',
     href: '/tiv-check',
     icon: <Camera className="h-8 w-8 text-primary" />,
-    img: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=1820&auto=format&fit=crop",
-    imgHint: "yoga posture",
     cta: 'Mulai Cek'
   },
   {
@@ -26,8 +24,6 @@ const features = [
     description: 'Dapatkan jawaban empatik untuk pertanyaan kesehatan Anda.',
     href: '/tiv-talks',
     icon: <MessageCircle className="h-8 w-8 text-primary" />,
-    img: "https://images.unsplash.com/photo-1529156069898-fac51a63c232?q=80&w=2070&auto=format&fit=crop",
-    imgHint: "friends talking",
     cta: 'Mulai Bicara'
   },
   {
@@ -35,8 +31,6 @@ const features = [
     description: 'Lacak aktivitas, nutrisi, dan siklus harian Anda.',
     href: '/tiv-track',
     icon: <HeartPulse className="h-8 w-8 text-primary" />,
-    img: "https://images.unsplash.com/photo-1511382432889-1241f97c4133?q=80&w=2070&auto=format&fit=crop",
-    imgHint: "activity tracking",
     cta: 'Lacak Aktivitas'
   },
   {
@@ -44,8 +38,6 @@ const features = [
     description: 'Panduan yoga virtual dengan instruktur avatar.',
     href: '/tiv-coach',
     icon: <Dumbbell className="h-8 w-8 text-primary" />,
-    img: "https://images.unsplash.com/photo-1599447514193-14b533423234?q=80&w=1887&auto=format&fit=crop",
-    imgHint: "yoga instructor",
     cta: 'Mulai Latihan'
   }
 ];
@@ -118,24 +110,19 @@ export default function DashboardPage() {
         <UserProfileCard />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {features.map((feature) => (
-            <Card key={feature.title} className="group overflow-hidden transition-all duration-300 hover:shadow-2xl hover:border-primary/50">
-              <CardContent className="p-0">
-                <div className="relative h-48 w-full">
-                  <Image src={feature.img} alt={feature.title} fill style={{objectFit:"cover"}} data-ai-hint={feature.imgHint} />
-                </div>
-                <div className="p-6">
+            <Card key={feature.title} className="group transition-all duration-300 hover:shadow-xl hover:border-primary/50 flex flex-col">
+              <CardContent className="p-6 flex-grow flex flex-col">
                   <div className="flex items-center gap-4 mb-2">
                     {feature.icon}
                     <h2 className="text-2xl font-headline text-foreground">{feature.title}</h2>
                   </div>
-                  <p className="text-muted-foreground mb-4">{feature.description}</p>
-                  <Button asChild variant="link" className="p-0 h-auto text-primary">
+                  <p className="text-muted-foreground mb-4 flex-grow">{feature.description}</p>
+                  <Button asChild variant="link" className="p-0 h-auto text-primary self-start">
                     <Link href={feature.href}>
                       {feature.cta}
                       <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                     </Link>
                   </Button>
-                </div>
               </CardContent>
             </Card>
           ))}
