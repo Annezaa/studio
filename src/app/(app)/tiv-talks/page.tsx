@@ -46,7 +46,7 @@ export default function TivTalksPage() {
       const botMessage: Message = { id: Date.now() + 1, role: 'bot', text: response.answer };
       setMessages(prev => [...prev, botMessage]);
     } catch (err) {
-      console.error("Error getting answer:", err);
+      console.error("Gagal mendapatkan jawaban:", err);
       const errorMessage = err instanceof Error ? err.message : "Terjadi kesalahan.";
       toast({
         title: "Oops!",

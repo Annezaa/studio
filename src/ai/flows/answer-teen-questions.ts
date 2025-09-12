@@ -18,7 +18,7 @@ const AnswerTeenQuestionsInputSchema = z.object({
 export type AnswerTeenQuestionsInput = z.infer<typeof AnswerTeenQuestionsInputSchema>;
 
 const AnswerTeenQuestionsOutputSchema = z.object({
-  answer: z.string().describe('The empathetic and educational answer to the question.'),
+  answer: z.string().describe('The empathetic and educational answer to the question in Indonesian.'),
 });
 export type AnswerTeenQuestionsOutput = z.infer<typeof AnswerTeenQuestionsOutputSchema>;
 
@@ -30,11 +30,11 @@ const prompt = ai.definePrompt({
   name: 'answerTeenQuestionsPrompt',
   input: {schema: AnswerTeenQuestionsInputSchema},
   output: {schema: AnswerTeenQuestionsOutputSchema},
-  prompt: `You are a helpful, empathetic, and educational AI chatbot designed to answer questions from teenage girls about sports, nutrition, menstruation, and mental health.
+  prompt: `Anda adalah chatbot AI yang membantu, berempati, dan mendidik yang dirancang untuk menjawab pertanyaan dari remaja putri tentang olahraga, nutrisi, menstruasi, dan kesehatan mental. **Semua tanggapan Anda harus dalam Bahasa Indonesia.**
 
-  Question: {{{query}}}
+  Pertanyaan: {{{query}}}
 
-  Answer: `,
+  Jawaban: `,
 });
 
 const answerTeenQuestionsFlow = ai.defineFlow(
