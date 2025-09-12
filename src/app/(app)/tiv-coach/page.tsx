@@ -5,7 +5,6 @@ import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Carousel, CarouselApi, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
@@ -15,219 +14,84 @@ const yogaPosesData = [
     image: "https://images.unsplash.com/photo-1591291621265-b3a88b41b4a9?q=80&w=1887&auto=format&fit=crop",
     imgHint: "downward dog yoga",
     description: "Pose ini meregangkan seluruh tubuh, membangun kekuatan di lengan dan kaki, serta menenangkan pikiran.",
-    levels: {
-      pemula: {
-        duration: "30-60 detik",
-        steps: [
-          "Mulai dengan posisi merangkak. Lutut di bawah pinggul, tangan sedikit di depan bahu.",
-          "Hembuskan napas dan angkat lutut dari lantai. Jaga agar lutut sedikit ditekuk.",
-          "Panjangkan tulang ekor Anda menjauhi panggul.",
-          "Tahan dengan nyaman."
-        ]
-      },
-      menengah: {
-        duration: "1-2 menit",
-        steps: [
-          "Mulai dengan posisi merangkak.",
-          "Angkat lutut dan coba luruskan kaki sambil menekan tumit ke lantai.",
-          "Jaga agar punggung tetap lurus, membentuk huruf V terbalik.",
-          "Libatkan otot inti dan lengan Anda."
-        ]
-      },
-      mahir: {
-        duration: "2-3 menit",
-        steps: [
-          "Dari posisi V terbalik, coba angkat satu kaki lurus ke atas.",
-          "Pastikan pinggul tetap sejajar.",
-          "Tahan selama beberapa napas, lalu ganti kaki.",
-          "Fokus pada pernapasan dalam dan peregangan yang lebih dalam."
-        ]
-      }
-    }
+    duration: "30-60 detik",
+    steps: [
+      "Mulai dengan posisi merangkak. Lutut di bawah pinggul, tangan sedikit di depan bahu.",
+      "Hembuskan napas dan angkat lutut dari lantai. Jaga agar lutut sedikit ditekuk.",
+      "Panjangkan tulang ekor Anda menjauhi panggul.",
+      "Tahan dengan nyaman."
+    ]
   },
   {
     name: "Warrior II (Virabhadrasana II)",
     image: "https://images.unsplash.com/photo-1597964448532-a5b17a126d83?q=80&w=1887&auto=format&fit=crop",
     imgHint: "warrior two yoga",
     description: "Meningkatkan stamina, meregangkan pinggul dan bahu, serta membangun konsentrasi.",
-    levels: {
-      pemula: {
-        duration: "20-30 detik per sisi",
-        steps: [
-          "Berdiri dengan kaki terbuka lebar. Putar kaki kanan 90 derajat ke luar.",
-          "Tekuk lutut kanan hingga di atas pergelangan kaki. Jaga kaki kiri lurus.",
-          "Angkat lengan sejajar lantai.",
-          "Tahan posisi dengan stabil."
-        ]
-      },
-      menengah: {
-        duration: "45-60 detik per sisi",
-        steps: [
-          "Pastikan lutut kanan tertekuk dalam hingga paha sejajar lantai.",
-          "Rentangkan lengan dengan kuat, sejajar dengan bahu.",
-          "Tatap ujung jari tangan kanan.",
-          "Jaga tubuh tetap tegak dan pinggul terbuka."
-        ]
-      },
-      mahir: {
-        duration: "1-2 menit per sisi",
-        steps: [
-          "Dalam posisi Warrior II, coba turunkan pinggul lebih rendah lagi.",
-          "Rasakan peregangan yang dalam di paha bagian dalam.",
-          "Pastikan energi mengalir dari ujung jari ke ujung jari.",
-          "Pertahankan napas yang stabil dan kuat."
-        ]
-      }
-    }
+    duration: "20-30 detik per sisi",
+    steps: [
+      "Berdiri dengan kaki terbuka lebar. Putar kaki kanan 90 derajat ke luar.",
+      "Tekuk lutut kanan hingga di atas pergelangan kaki. Jaga kaki kiri lurus.",
+      "Angkat lengan sejajar lantai.",
+      "Tahan posisi dengan stabil."
+    ]
   },
   {
     name: "Tree Pose (Vrksasana)",
     image: "https://images.unsplash.com/photo-1593811167563-0b2a382103c8?q=80&w=1887&auto=format&fit=crop",
     imgHint: "tree pose yoga",
     description: "Meningkatkan keseimbangan, memperkuat paha dan betis, serta menenangkan pikiran.",
-    levels: {
-      pemula: {
-        duration: "15-30 detik per sisi",
-        steps: [
-          "Berdiri tegak. Pindahkan berat badan ke kaki kiri.",
-          "Letakkan telapak kaki kanan di pergelangan kaki atau betis kiri (hindari lutut).",
-          "Fokus pada satu titik di depan Anda untuk keseimbangan.",
-          "Letakkan tangan di dada atau di samping."
-        ]
-      },
-      menengah: {
-        duration: "30-60 detik per sisi",
-        steps: [
-          "Letakkan telapak kaki kanan di bagian dalam paha kiri.",
-          "Satukan kedua telapak tangan di depan dada (posisi Anjali Mudra).",
-          "Jaga pinggul tetap sejajar dan buka lutut kanan ke samping.",
-          "Rasakan kekuatan dari kaki yang menopang."
-        ]
-      },
-      mahir: {
-        duration: "1-2 menit per sisi",
-        steps: [
-          "Dari posisi Tree Pose, angkat tangan lurus ke atas kepala.",
-          "Anda bisa mencoba menutup mata untuk tantangan keseimbangan ekstra.",
-          "Jaga napas tetap tenang dan teratur.",
-          "Rasakan tubuh Anda tumbuh tinggi seperti pohon."
-        ]
-      }
-    }
+    duration: "15-30 detik per sisi",
+    steps: [
+      "Berdiri tegak. Pindahkan berat badan ke kaki kiri.",
+      "Letakkan telapak kaki kanan di pergelangan kaki atau betis kiri (hindari lutut).",
+      "Fokus pada satu titik di depan Anda untuk keseimbangan.",
+      "Letakkan tangan di dada atau di samping."
+    ]
   },
   {
     name: "Triangle Pose (Trikonasana)",
     image: "https://images.unsplash.com/photo-1610664921896-29a5099f7a7a?q=80&w=1887&auto=format&fit=crop",
     imgHint: "triangle pose yoga",
     description: "Meregangkan kaki, pinggul, dan tulang belakang, serta meningkatkan keseimbangan.",
-    levels: {
-      pemula: {
-        duration: "20-30 detik per sisi",
-        steps: [
-            "Berdiri dengan kaki terbuka lebar.",
-            "Putar kaki kanan ke luar 90 derajat dan kaki kiri sedikit ke dalam.",
-            "Rentangkan lengan sejajar dengan lantai, lalu tekuk ke samping kanan, letakkan tangan di tulang kering atau balok.",
-            "Angkat lengan kiri ke atas."
-        ]
-      },
-      menengah: {
-        duration: "30-45 detik per sisi",
-        steps: [
-            "Letakkan tangan kanan di lantai di belakang kaki kanan Anda.",
-            "Buka dada lebih lebar, tatap ujung jari tangan kiri di atas.",
-            "Jaga kedua kaki tetap kuat dan lurus.",
-            "Rasakan peregangan di sisi tubuh Anda."
-        ]
-      },
-      mahir: {
-        duration: "1 menit per sisi",
-        steps: [
-            "Pegang ibu jari kaki kanan Anda dengan jari telunjuk dan tengah tangan kanan.",
-            "Tingkatkan putaran pada tulang belakang Anda, buka dada sepenuhnya ke langit-langit.",
-            "Jaga agar inti tubuh tetap aktif untuk stabilitas.",
-            "Pertahankan napas yang dalam dan teratur."
-        ]
-      }
-    }
+    duration: "20-30 detik per sisi",
+    steps: [
+        "Berdiri dengan kaki terbuka lebar.",
+        "Putar kaki kanan ke luar 90 derajat dan kaki kiri sedikit ke dalam.",
+        "Rentangkan lengan sejajar dengan lantai, lalu tekuk ke samping kanan, letakkan tangan di tulang kering atau balok.",
+        "Angkat lengan kiri ke atas."
+    ]
   },
   {
     name: "Bridge Pose (Setu Bandhasana)",
     image: "https://images.unsplash.com/photo-1545389336-cf090694435e?q=80&w=1964&auto=format&fit=crop",
     imgHint: "bridge pose yoga",
     description: "Memperkuat punggung, bokong, dan paha belakang, serta meregangkan dada.",
-    levels: {
-      pemula: {
-        duration: "30-60 detik",
-        steps: [
-            "Berbaring telentang dengan lutut ditekuk, kaki rata di lantai selebar pinggul.",
-            "Letakkan lengan di samping tubuh dengan telapak tangan menghadap ke bawah.",
-            "Angkat pinggul dari lantai.",
-            "Jaga agar paha tetap sejajar."
-        ]
-      },
-      menengah: {
-        duration: "1-2 menit",
-        steps: [
-            "Kaitkan jari-jari tangan di bawah panggul Anda yang terangkat.",
-            "Tekan lengan dan bahu ke lantai untuk mengangkat dada lebih tinggi.",
-            "Angkat pinggul lebih tinggi lagi, libatkan bokong.",
-            "Bernapas dengan stabil."
-        ]
-      },
-      mahir: {
-        duration: "2 menit",
-        steps: [
-            "Dari posisi Bridge, angkat satu kaki lurus ke langit-langit.",
-            "Jaga agar pinggul tetap sejajar dan terangkat.",
-            "Tahan selama beberapa napas, lalu ganti kaki.",
-            "Libatkan inti tubuh untuk menjaga keseimbangan."
-        ]
-      }
-    }
+    duration: "30-60 detik",
+    steps: [
+        "Berbaring telentang dengan lutut ditekuk, kaki rata di lantai selebar pinggul.",
+        "Letakkan lengan di samping tubuh dengan telapak tangan menghadap ke bawah.",
+        "Angkat pinggul dari lantai.",
+        "Jaga agar paha tetap sejajar."
+    ]
   },
   {
     name: "Cat-Cow Pose (Marjaryasana-Bitilasana)",
     image: "https://images.unsplash.com/photo-1545389336-cf090694435e?q=80&w=1964&auto=format&fit=crop",
     imgHint: "cat cow pose yoga",
     description: "Meningkatkan fleksibilitas tulang belakang dan meredakan ketegangan punggung.",
-    levels: {
-      pemula: {
-        duration: "1-2 menit",
-        steps: [
-            "Mulai dengan posisi merangkak.",
-            "Tarik napas sambil melengkungkan punggung ke bawah (Cow).",
-            "Hembuskan napas sambil membulatkan tulang belakang ke atas (Cat).",
-            "Ulangi gerakan ini mengikuti irama napas Anda."
-        ]
-      },
-      menengah: {
-        duration: "2-3 menit",
-        steps: [
-            "Fokus pada koordinasi napas dan gerakan secara presisi.",
-            "Saat dalam pose Cow, buka dada Anda ke depan.",
-            "Saat dalam pose Cat, dorong lantai menjauh dari Anda.",
-            "Rasakan setiap sendi tulang belakang bergerak."
-        ]
-      },
-      mahir: {
-        duration: "3-5 menit",
-        steps: [
-            "Tambahkan gerakan melingkar pada pinggul dan tulang rusuk.",
-            "Gerakkan tubuh secara bebas dan intuitif dari pose Cat ke Cow.",
-            "Coba tutup mata Anda untuk merasakan gerakan lebih dalam.",
-            "Jadikan ini sebagai meditasi bergerak."
-        ]
-      }
-    }
+    duration: "1-2 menit",
+    steps: [
+        "Mulai dengan posisi merangkak.",
+        "Tarik napas sambil melengkungkan punggung ke bawah (Cow).",
+        "Hembuskan napas sambil membulatkan tulang belakang ke atas (Cat).",
+        "Ulangi gerakan ini mengikuti irama napas Anda."
+    ]
   }
 ];
-
-type Difficulty = 'pemula' | 'menengah' | 'mahir';
 
 export default function TivCoachPage() {
   const [api, setApi] = useState<CarouselApi>()
   const [current, setCurrent] = useState(0)
-  const [difficulty, setDifficulty] = useState<Difficulty>('pemula');
   
   useEffect(() => {
     if (!api) {
@@ -287,10 +151,7 @@ export default function TivCoachPage() {
         <div className="lg:col-span-3">
           <Carousel setApi={setApi} className="w-full" opts={{ loop: true }}>
             <CarouselContent>
-              {yogaPosesData.map((pose, index) => {
-                const levelData = pose.levels[difficulty];
-
-                return (
+              {yogaPosesData.map((pose) => (
                   <CarouselItem key={pose.name}>
                     <div className="p-1">
                       <Card>
@@ -301,26 +162,13 @@ export default function TivCoachPage() {
                             </div>
                           </div>
                           <div className="w-full lg:w-1/2 space-y-4">
-                            <div className="space-y-2">
-                              <Label htmlFor={`difficulty-${index}`}>Tingkat Kesulitan</Label>
-                              <Select onValueChange={(value) => setDifficulty(value as Difficulty)} defaultValue={difficulty}>
-                                <SelectTrigger id={`difficulty-${index}`}>
-                                    <SelectValue placeholder="Pilih tingkat..." />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="pemula">Pemula</SelectItem>
-                                    <SelectItem value="menengah">Menengah</SelectItem>
-                                    <SelectItem value="mahir">Mahir</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
                             <CardTitle className="text-2xl font-headline">{pose.name}</CardTitle>
                             <CardDescription>{pose.description}</CardDescription>
-                            <p className="text-sm font-semibold">Durasi: <span className="font-normal text-muted-foreground">{levelData.duration}</span></p>
+                            <p className="text-sm font-semibold">Durasi: <span className="font-normal text-muted-foreground">{pose.duration}</span></p>
                             <div>
                               <h3 className="font-semibold mb-2">Langkah-langkah:</h3>
                               <ul className="list-decimal list-inside space-y-1 text-sm text-muted-foreground">
-                                {levelData.steps.map((step, i) => (
+                                {pose.steps.map((step, i) => (
                                   <li key={i}>{step}</li>
                                 ))}
                               </ul>
@@ -330,8 +178,7 @@ export default function TivCoachPage() {
                       </Card>
                     </div>
                   </CarouselItem>
-                );
-              })}
+              ))}
             </CarouselContent>
             <CarouselPrevious className="hidden sm:flex -left-4" />
             <CarouselNext className="hidden sm:flex -right-4" />
@@ -341,13 +188,3 @@ export default function TivCoachPage() {
     </div>
   );
 }
-
-// Add Label to prevent breaking changes from shadcn
-const Label = ({ className, ...props }: React.LabelHTMLAttributes<HTMLLabelElement>) => (
-  <label
-    className={"text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 " + className}
-    {...props}
-  />
-);
-
-    
