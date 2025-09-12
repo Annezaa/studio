@@ -7,9 +7,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Carousel, CarouselApi, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from '@/components/ui/button';
-import { Volume2, Loader, AlertCircle } from 'lucide-react';
-import { audioNarrator } from '@/ai/flows/audio-narrator-flow';
-import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 const yogaPosesData = [
@@ -231,8 +228,6 @@ export default function TivCoachPage() {
   const [api, setApi] = useState<CarouselApi>()
   const [current, setCurrent] = useState(0)
   const [difficulty, setDifficulty] = useState<Difficulty>('pemula');
-  const [audioStates, setAudioStates] = useState<Record<number, { loading: boolean, error: string | null, data: string | null }>>({});
-  const { toast } = useToast();
   
   useEffect(() => {
     if (!api) {
@@ -256,29 +251,6 @@ export default function TivCoachPage() {
     api?.scrollTo(index);
   }, [api]);
 
-  const handleNarration = async (poseIndex: number) => {
-    const pose = yogaPosesData[poseIndex];
-    if (!pose) return;
-
-    const currentLevelData = pose.levels[difficulty];
-    const textToNarrate = `Pose: ${pose.name}. Tingkat: ${difficulty}. Durasi yang disarankan: ${currentLevelData.duration}. Langkah-langkah: ${currentLevelData.steps.join('. ')}`;
-
-    setAudioStates(prev => ({ ...prev, [poseIndex]: { loading: true, error: null, data: null } }));
-
-    try {
-      const result = await audioNarrator(textToNarrate);
-      setAudioStates(prev => ({ ...prev, [poseIndex]: { loading: false, error: null, data: result.media } }));
-    } catch (err) {
-      console.error("Audio generation failed:", err);
-      const errorMessage = err instanceof Error ? err.message : "Gagal menghasilkan audio.";
-      setAudioStates(prev => ({ ...prev, [poseIndex]: { loading: false, error: errorMessage, data: null } }));
-      toast({
-        title: "Narasi Gagal",
-        description: "Gagal membuat narasi audio. Silakan coba lagi.",
-        variant: "destructive",
-      });
-    }
-  };
 
   return (
     <div className="space-y-8">
@@ -317,7 +289,6 @@ export default function TivCoachPage() {
             <CarouselContent>
               {yogaPosesData.map((pose, index) => {
                 const levelData = pose.levels[difficulty];
-                const audioState = audioStates[index] || { loading: false, error: null, data: null };
 
                 return (
                   <CarouselItem key={pose.name}>
@@ -327,9 +298,6 @@ export default function TivCoachPage() {
                           <div className="w-full lg:w-1/2 flex-shrink-0">
                             <div className="relative w-full aspect-[4/3] rounded-lg overflow-hidden border-2 border-primary">
                               <Image src={pose.image} alt={pose.name} layout="fill" objectFit="cover" data-ai-hint={pose.imgHint}/>
-                            </div>
-                            <div className="mt-4 relative w-full aspect-[4/3] rounded-lg overflow-hidden">
-                              <Image src="https://images.unsplash.com/photo-1599447514193-14b533423234?q=80&w=1887&auto=format&fit=crop" alt="Yoga Instructor Avatar" layout="fill" objectFit="cover" data-ai-hint="yoga instructor avatar" />
                             </div>
                           </div>
                           <div className="w-full lg:w-1/2 space-y-4">
@@ -357,23 +325,6 @@ export default function TivCoachPage() {
                                 ))}
                               </ul>
                             </div>
-                            <div>
-                              <Button onClick={() => handleNarration(index)} disabled={audioState.loading}>
-                                {audioState.loading ? (
-                                  <><Loader className="mr-2 animate-spin" /> Memuat...</>
-                                ) : (
-                                  <><Volume2 className="mr-2" /> Dengarkan Instruksi</>
-                                )}
-                              </Button>
-                              {audioState.error && <p className="text-destructive text-xs mt-2 flex items-center gap-1"><AlertCircle className="h-4 w-4" /> {audioState.error}</p>}
-                              {audioState.data && (
-                                <div className="mt-4">
-                                  <audio controls src={audioState.data} className="w-full">
-                                    Browser Anda tidak mendukung elemen audio.
-                                  </audio>
-                                </div>
-                              )}
-                            </div>
                           </div>
                         </CardContent>
                       </Card>
@@ -398,3 +349,5 @@ const Label = ({ className, ...props }: React.LabelHTMLAttributes<HTMLLabelEleme
     {...props}
   />
 );
+
+    
