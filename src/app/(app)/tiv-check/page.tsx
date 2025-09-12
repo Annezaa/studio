@@ -35,6 +35,7 @@ function TivCheckContent() {
   const [error, setError] = useState<string | null>(null);
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
   const [isCameraOn, setIsCameraOn] = useState(false);
+  const [analyzedImage, setAnalyzedImage] = useState<string | null>(null);
 
   useEffect(() => {
     const poseFromUrl = searchParams.get('pose');
@@ -95,6 +96,7 @@ function TivCheckContent() {
     setIsLoading(true);
     setResult(null);
     setError(null);
+    setAnalyzedImage(null);
 
     try {
       const canvas = document.createElement('canvas');
@@ -110,6 +112,7 @@ function TivCheckContent() {
       
       context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
       const cameraFeedDataUri = canvas.toDataURL('image/jpeg');
+      setAnalyzedImage(cameraFeedDataUri);
       
       const response = await correctYogaPosture({
           cameraFeedDataUri,
@@ -233,17 +236,17 @@ function TivCheckContent() {
                 <CardTitle className="font-headline">Hasil Analisis</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {result.accuracyScore < 50 && poseImage && (
-                  <div className="relative w-full h-40 rounded-lg overflow-hidden">
+                {analyzedImage && (
+                  <div className="relative w-full aspect-video rounded-lg overflow-hidden border">
                     <Image
-                      src={poseImage}
-                      alt={`Contoh pose ${selectedPose} yang benar`}
+                      src={analyzedImage}
+                      alt={`Postur Anda saat dianalisis`}
                       layout="fill"
                       objectFit="cover"
-                      data-ai-hint={poseHint}
+                      className="transform scale-x-[-1]"
                     />
-                     <div className="absolute inset-0 bg-black/50 flex items-center justify-center p-4">
-                      <p className="text-white text-center text-lg font-bold">Ini adalah contoh pose yang benar. Terus berlatih, kamu pasti bisa!</p>
+                     <div className="absolute inset-0 bg-black/40 flex items-center justify-center p-4">
+                      <p className="text-white text-center text-lg font-bold">Ini adalah postur Anda saat dianalisis.</p>
                     </div>
                   </div>
                 )}
@@ -284,6 +287,8 @@ export default function TivCheckPage() {
         </Suspense>
     )
 }
+    
+
     
 
     
