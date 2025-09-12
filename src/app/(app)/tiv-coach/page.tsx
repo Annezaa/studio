@@ -11,7 +11,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 const yogaPosesData = [
   {
     name: "Downward-Facing Dog (Adho Mukha Svanasana)",
-    image: "https://images.unsplash.com/photo-1591291621265-b3a88b41b4a9?q=80&w=1887&auto=format&fit=crop",
+    image: "https://youtu.be/Y0GDgQqt-bA",
     imgHint: "downward dog yoga",
     description: "Pose ini meregangkan seluruh tubuh, membangun kekuatan di lengan dan kaki, serta menenangkan pikiran.",
     duration: "30-60 detik",
@@ -89,6 +89,16 @@ const yogaPosesData = [
   }
 ];
 
+function getYouTubeEmbedUrl(url: string) {
+    let videoId = null;
+    const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?v=)?([\w-]{11})/;
+    const match = url.match(youtubeRegex);
+    if (match) {
+        videoId = match[1];
+    }
+    return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
+}
+
 export default function TivCoachPage() {
   const [api, setApi] = useState<CarouselApi>()
   const [current, setCurrent] = useState(0)
@@ -151,34 +161,48 @@ export default function TivCoachPage() {
         <div className="lg:col-span-3">
           <Carousel setApi={setApi} className="w-full" opts={{ loop: true }}>
             <CarouselContent>
-              {yogaPosesData.map((pose) => (
-                  <CarouselItem key={pose.name}>
-                    <div className="p-1">
-                      <Card>
-                        <CardContent className="flex flex-col lg:flex-row gap-6 p-6 items-start">
-                          <div className="w-full lg:w-1/2 flex-shrink-0">
-                            <div className="relative w-full aspect-[4/3] rounded-lg overflow-hidden border-2 border-primary">
-                              <Image src={pose.image} alt={pose.name} layout="fill" objectFit="cover" data-ai-hint={pose.imgHint}/>
-                            </div>
-                          </div>
-                          <div className="w-full lg:w-1/2 space-y-4">
-                            <CardTitle className="text-2xl font-headline">{pose.name}</CardTitle>
-                            <CardDescription>{pose.description}</CardDescription>
-                            <p className="text-sm font-semibold">Durasi: <span className="font-normal text-muted-foreground">{pose.duration}</span></p>
-                            <div>
-                              <h3 className="font-semibold mb-2">Langkah-langkah:</h3>
-                              <ul className="list-decimal list-inside space-y-1 text-sm text-muted-foreground">
-                                {pose.steps.map((step, i) => (
-                                  <li key={i}>{step}</li>
-                                ))}
-                              </ul>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </div>
-                  </CarouselItem>
-              ))}
+              {yogaPosesData.map((pose) => {
+                  const embedUrl = getYouTubeEmbedUrl(pose.image);
+                  return (
+                      <CarouselItem key={pose.name}>
+                        <div className="p-1">
+                          <Card>
+                            <CardContent className="flex flex-col lg:flex-row gap-6 p-6 items-start">
+                              <div className="w-full lg:w-1/2 flex-shrink-0">
+                                <div className="relative w-full aspect-video rounded-lg overflow-hidden border-2 border-primary">
+                                  {embedUrl ? (
+                                    <iframe
+                                      src={embedUrl}
+                                      title={pose.name}
+                                      frameBorder="0"
+                                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                      allowFullScreen
+                                      className="absolute top-0 left-0 w-full h-full"
+                                    ></iframe>
+                                  ) : (
+                                    <Image src={pose.image} alt={pose.name} layout="fill" objectFit="cover" data-ai-hint={pose.imgHint}/>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="w-full lg:w-1/2 space-y-4">
+                                <CardTitle className="text-2xl font-headline">{pose.name}</CardTitle>
+                                <CardDescription>{pose.description}</CardDescription>
+                                <p className="text-sm font-semibold">Durasi: <span className="font-normal text-muted-foreground">{pose.duration}</span></p>
+                                <div>
+                                  <h3 className="font-semibold mb-2">Langkah-langkah:</h3>
+                                  <ul className="list-decimal list-inside space-y-1 text-sm text-muted-foreground">
+                                    {pose.steps.map((step, i) => (
+                                      <li key={i}>{step}</li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        </div>
+                      </CarouselItem>
+                  )
+              })}
             </CarouselContent>
             <CarouselPrevious className="hidden sm:flex -left-4" />
             <CarouselNext className="hidden sm:flex -right-4" />
@@ -188,3 +212,5 @@ export default function TivCoachPage() {
     </div>
   );
 }
+
+    
