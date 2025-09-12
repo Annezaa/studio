@@ -3,7 +3,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import Image from 'next/image';
-import { Camera as CameraIcon, Zap, CheckCircle, XCircle } from 'lucide-react';
+import { Camera as CameraIcon, Zap, CheckCircle, XCircle, Video, VideoOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -25,47 +25,59 @@ const yogaPoses = [
 export default function TivCheckPage() {
   const { toast } = useToast();
   const videoRef = useRef<HTMLVideoElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
   const [selectedPose, setSelectedPose] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<CorrectYogaPostureOutput | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [hasCameraPermission, setHasCameraPermission] = useState(false);
+  const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
+  const [isCameraOn, setIsCameraOn] = useState(false);
 
-  useEffect(() => {
-    const enableCamera = async () => {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-        }
-        setHasCameraPermission(true);
-      } catch (err) {
-        console.error("Error saat mengakses kamera:", err);
-        setHasCameraPermission(false);
-        toast({
-          variant: "destructive",
-          title: "Akses Kamera Ditolak",
-          description: "Harap izinkan akses kamera di pengaturan browser Anda untuk menggunakan fitur ini.",
-        });
+  const startCamera = useCallback(async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
       }
-    };
-
-    enableCamera();
-    
-    return () => {
-      if (videoRef.current && videoRef.current.srcObject) {
-        const stream = videoRef.current.srcObject as MediaStream;
-        stream.getTracks().forEach(track => track.stop());
-      }
-    };
+      streamRef.current = stream;
+      setHasCameraPermission(true);
+      setIsCameraOn(true);
+    } catch (err) {
+      console.error("Error saat mengakses kamera:", err);
+      setHasCameraPermission(false);
+      setIsCameraOn(false);
+      toast({
+        variant: "destructive",
+        title: "Akses Kamera Ditolak",
+        description: "Harap izinkan akses kamera di pengaturan browser Anda untuk menggunakan fitur ini.",
+      });
+    }
   }, [toast]);
 
+  const stopCamera = useCallback(() => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+    }
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+    streamRef.current = null;
+    setIsCameraOn(false);
+  }, []);
+
+  // Cleanup effect
+  useEffect(() => {
+    return () => {
+      stopCamera();
+    };
+  }, [stopCamera]);
+  
   const handleCheckPosture = async () => {
     if (!selectedPose) {
       setError("Silakan pilih pose yoga terlebih dahulu.");
       return;
     }
-    if (!videoRef.current || !hasCameraPermission) {
+    if (!videoRef.current || !isCameraOn) {
         setError("Kamera tidak aktif. Harap nyalakan kamera terlebih dahulu.");
         return;
     }
@@ -134,24 +146,28 @@ export default function TivCheckPage() {
                 ref={videoRef} 
                 className={cn(
                   "w-full h-full object-cover transform scale-x-[-1]",
+                  !isCameraOn && "hidden"
                 )} 
                 autoPlay 
                 muted 
                 playsInline 
               />
-              {!hasCameraPermission && (
+              {!isCameraOn && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-secondary gap-2 text-muted-foreground">
                     <CameraIcon className="h-16 w-16" />
-                    <p>Mengaktifkan kamera...</p>
+                    <p>Kamera tidak aktif.</p>
                 </div>
               )}
             </div>
-             {hasCameraPermission && !isLoading && (
-                 <Alert>
-                    <AlertDescription>Posisikan diri Anda di depan kamera dan klik "Periksa Postur Saya".</AlertDescription>
-                </Alert>
-            )}
-             {!hasCameraPermission && (
+             <div className="flex gap-2">
+                <Button onClick={startCamera} disabled={isCameraOn}>
+                    <Video className="mr-2 h-4 w-4"/> Nyalakan Kamera
+                </Button>
+                <Button onClick={stopCamera} disabled={!isCameraOn} variant="outline">
+                    <VideoOff className="mr-2 h-4 w-4"/> Matikan Kamera
+                </Button>
+             </div>
+             {hasCameraPermission === false && (
                 <Alert variant="destructive">
                     <AlertTitle>Memerlukan Izin Kamera</AlertTitle>
                     <AlertDescription>
@@ -186,7 +202,7 @@ export default function TivCheckPage() {
                 <CardTitle className="font-headline">2. Analisis Postur</CardTitle>
             </CardHeader>
             <CardContent>
-                <Button onClick={handleCheckPosture} disabled={!selectedPose || isLoading || !hasCameraPermission} className="w-full">
+                <Button onClick={handleCheckPosture} disabled={!selectedPose || isLoading || !isCameraOn} className="w-full">
                 <Zap className="mr-2 h-4 w-4" />
                 {isLoading ? "Menganalisis..." : "Periksa Postur Saya"}
               </Button>
