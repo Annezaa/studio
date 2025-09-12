@@ -14,12 +14,12 @@ import { useToast } from "@/hooks/use-toast";
 import { cn } from '@/lib/utils';
 
 const yogaPoses = [
-  { name: "Downward-Facing Dog", image: "https://images.unsplash.com/photo-1591291621265-b3a88b41b4a9?q=80&w=1887&auto=format&fit=crop", hint: "downward dog yoga" },
-  { name: "Warrior II", image: "https://images.unsplash.com/photo-1597964448532-a5b17a126d83?q=80&w=1887&auto=format&fit=crop", hint: "warrior two yoga" },
-  { name: "Tree Pose", image: "https://images.unsplash.com/photo-1593811167563-0b2a382103c8?q=80&w=1887&auto=format&fit=crop", hint: "tree pose yoga" },
-  { name: "Triangle Pose", image: "https://images.unsplash.com/photo-1610664921896-29a5099f7a7a?q=80&w=1887&auto=format&fit=crop", hint: "triangle pose yoga" },
-  { name: "Bridge Pose", image: "https://images.unsplash.com/photo-1545389336-cf090694435e?q=80&w=1964&auto=format&fit=crop", hint: "bridge pose yoga" },
-  { name: "Cat-Cow Pose", image: "https://images.unsplash.com/photo-1545389336-cf090694435e?q=80&w=1964&auto=format&fit=crop", hint: "cat cow yoga" }
+  { name: "Downward-Facing Dog", image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=1887&auto=format&fit=crop", hint: "downward dog yoga" },
+  { name: "Warrior II", image: "https://images.unsplash.com/photo-1599901860904-17e6ed7083a0?q=80&w=1887&auto=format&fit=crop", hint: "warrior two yoga" },
+  { name: "Tree Pose", image: "https://images.unsplash.com/photo-1575052814086-c7592e152d1c?q=80&w=1887&auto=format&fit=crop", hint: "tree pose yoga" },
+  { name: "Triangle Pose", image: "https://images.unsplash.com/photo-1603988363607-93a33599595a?q=80&w=1887&auto=format&fit=crop", hint: "triangle pose yoga" },
+  { name: "Bridge Pose", image: "https://images.unsplash.com/photo-1572449043442-c5c79a493325?q=80&w=1964&auto=format&fit=crop", hint: "bridge pose yoga" },
+  { name: "Cat-Cow Pose", image: "https://images.unsplash.com/photo-1614713495470-3abc7373f7c4?q=80&w=1887&auto=format&fit=crop", hint: "cat cow yoga" }
 ];
 
 export default function TivCheckPage() {
