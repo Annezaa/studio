@@ -24,7 +24,7 @@ const yogaPosesData = [
   },
   {
     name: "Warrior II (Virabhadrasana II)",
-    image: "https://images.unsplash.com/photo-1597964448532-a5b17a126d83?q=80&w=1887&auto=format&fit=crop",
+    image: "https://youtu.be/pJhevMZfOHA",
     imgHint: "warrior two yoga",
     description: "Meningkatkan stamina, meregangkan pinggul dan bahu, serta membangun konsentrasi.",
     duration: "20-30 detik per sisi",
@@ -37,7 +37,7 @@ const yogaPosesData = [
   },
   {
     name: "Tree Pose (Vrksasana)",
-    image: "https://images.unsplash.com/photo-1593811167563-0b2a382103c8?q=80&w=1887&auto=format&fit=crop",
+    image: "https://youtu.be/uELr6MPi7pI",
     imgHint: "tree pose yoga",
     description: "Meningkatkan keseimbangan, memperkuat paha dan betis, serta menenangkan pikiran.",
     duration: "15-30 detik per sisi",
@@ -50,7 +50,7 @@ const yogaPosesData = [
   },
   {
     name: "Triangle Pose (Trikonasana)",
-    image: "https://images.unsplash.com/photo-1610664921896-29a5099f7a7a?q=80&w=1887&auto=format&fit=crop",
+    image: "https://youtu.be/S6gB0QHbWFE",
     imgHint: "triangle pose yoga",
     description: "Meregangkan kaki, pinggul, dan tulang belakang, serta meningkatkan keseimbangan.",
     duration: "20-30 detik per sisi",
@@ -63,7 +63,7 @@ const yogaPosesData = [
   },
   {
     name: "Bridge Pose (Setu Bandhasana)",
-    image: "https://images.unsplash.com/photo-1545389336-cf090694435e?q=80&w=1964&auto=format&fit=crop",
+    image: "https://youtu.be/XUcAuYd7VU0",
     imgHint: "bridge pose yoga",
     description: "Memperkuat punggung, bokong, dan paha belakang, serta meregangkan dada.",
     duration: "30-60 detik",
@@ -76,7 +76,7 @@ const yogaPosesData = [
   },
   {
     name: "Cat-Cow Pose (Marjaryasana-Bitilasana)",
-    image: "https://images.unsplash.com/photo-1545389336-cf090694435e?q=80&w=1964&auto=format&fit=crop",
+    image: "https://youtu.be/y_cKHKi9UaM",
     imgHint: "cat cow pose yoga",
     description: "Meningkatkan fleksibilitas tulang belakang dan meredakan ketegangan punggung.",
     duration: "1-2 menit",
