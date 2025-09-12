@@ -107,9 +107,6 @@ function TivCheckContent() {
           throw new Error("Tidak bisa mendapatkan konteks canvas");
       }
       
-      context.translate(canvas.width, 0);
-      context.scale(-1, 1);
-      
       context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
       const cameraFeedDataUri = canvas.toDataURL('image/jpeg');
       setAnalyzedImage(cameraFeedDataUri);
@@ -240,7 +237,7 @@ function TivCheckContent() {
                   <div className="relative w-full aspect-video rounded-lg overflow-hidden border">
                     <Image
                       src={analyzedImage}
-                      alt={`Postur Anda saat dianalisis`}
+                      alt="Postur Anda saat dianalisis"
                       layout="fill"
                       objectFit="cover"
                       className="transform scale-x-[-1]"
@@ -289,3 +286,4 @@ export default function TivCheckPage() {
     
 
     
+
