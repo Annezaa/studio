@@ -1,7 +1,8 @@
 
 "use client";
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Carousel, CarouselApi, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
@@ -10,7 +11,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 
 const yogaPosesData = [
   {
-    name: "Downward-Facing Dog (Adho Mukha Svanasana)",
+    name: "Downward-Facing Dog",
     image: "https://youtu.be/Y0GDgQqt-bA",
     imgHint: "downward dog yoga",
     description: "Pose ini meregangkan seluruh tubuh, membangun kekuatan di lengan dan kaki, serta menenangkan pikiran.",
@@ -23,7 +24,7 @@ const yogaPosesData = [
     ]
   },
   {
-    name: "Warrior II (Virabhadrasana II)",
+    name: "Warrior II",
     image: "https://youtu.be/pJhevMZfOHA",
     imgHint: "warrior two yoga",
     description: "Meningkatkan stamina, meregangkan pinggul dan bahu, serta membangun konsentrasi.",
@@ -36,7 +37,7 @@ const yogaPosesData = [
     ]
   },
   {
-    name: "Tree Pose (Vrksasana)",
+    name: "Tree Pose",
     image: "https://youtu.be/uELr6MPi7pI",
     imgHint: "tree pose yoga",
     description: "Meningkatkan keseimbangan, memperkuat paha dan betis, serta menenangkan pikiran.",
@@ -49,7 +50,7 @@ const yogaPosesData = [
     ]
   },
   {
-    name: "Triangle Pose (Trikonasana)",
+    name: "Triangle Pose",
     image: "https://youtu.be/S6gB0QHbWFE",
     imgHint: "triangle pose yoga",
     description: "Meregangkan kaki, pinggul, dan tulang belakang, serta meningkatkan keseimbangan.",
@@ -62,7 +63,7 @@ const yogaPosesData = [
     ]
   },
   {
-    name: "Bridge Pose (Setu Bandhasana)",
+    name: "Bridge Pose",
     image: "https://youtu.be/XUcAuYd7VU0",
     imgHint: "bridge pose yoga",
     description: "Memperkuat punggung, bokong, dan paha belakang, serta meregangkan dada.",
@@ -75,7 +76,7 @@ const yogaPosesData = [
     ]
   },
   {
-    name: "Cat-Cow Pose (Marjaryasana-Bitilasana)",
+    name: "Cat-Cow Pose",
     image: "https://youtu.be/y_cKHKi9UaM",
     imgHint: "cat cow pose yoga",
     description: "Meningkatkan fleksibilitas tulang belakang dan meredakan ketegangan punggung.",
@@ -99,16 +100,26 @@ function getYouTubeEmbedUrl(url: string) {
     return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
 }
 
-export default function TivCoachPage() {
+function TivCoachContent() {
   const [api, setApi] = useState<CarouselApi>()
   const [current, setCurrent] = useState(0)
+  const searchParams = useSearchParams();
   
   useEffect(() => {
     if (!api) {
       return
     }
 
-    setCurrent(api.selectedScrollSnap())
+    const poseFromUrl = searchParams.get('pose');
+    if (poseFromUrl) {
+      const poseIndex = yogaPosesData.findIndex(p => p.name === poseFromUrl);
+      if (poseIndex !== -1) {
+        api.scrollTo(poseIndex, true);
+        setCurrent(poseIndex);
+      }
+    } else {
+        setCurrent(api.selectedScrollSnap());
+    }
 
     const handleSelect = (api: CarouselApi) => {
         setCurrent(api.selectedScrollSnap())
@@ -119,7 +130,7 @@ export default function TivCoachPage() {
     return () => {
       api.off("select", handleSelect)
     }
-  }, [api])
+  }, [api, searchParams])
 
   const handlePoseSelect = useCallback((index: number) => {
     api?.scrollTo(index);
@@ -149,7 +160,7 @@ export default function TivCoachPage() {
                             onClick={() => handlePoseSelect(index)}
                             className="w-full justify-start text-left h-auto py-2"
                             >
-                            {pose.name.split('(')[0]}
+                            {pose.name}
                             </Button>
                         ))}
                         </div>
@@ -211,6 +222,14 @@ export default function TivCoachPage() {
       </div>
     </div>
   );
+}
+
+export default function TivCoachPage() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <TivCoachContent />
+        </Suspense>
+    )
 }
 
     

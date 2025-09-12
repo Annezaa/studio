@@ -3,7 +3,8 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import Image from 'next/image';
-import { Camera as CameraIcon, Zap, CheckCircle, XCircle, Video, VideoOff } from 'lucide-react';
+import Link from 'next/link';
+import { Camera as CameraIcon, Zap, CheckCircle, XCircle, Video, VideoOff, Dumbbell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -251,6 +252,12 @@ export default function TivCheckPage() {
                     <AlertDescription className="text-foreground">{result.feedback}</AlertDescription>
                   </Alert>
                 </div>
+                 <Button asChild className="w-full mt-4">
+                    <Link href={`/tiv-coach?pose=${encodeURIComponent(selectedPose)}`}>
+                        <Dumbbell className="mr-2 h-4 w-4" />
+                        Latih Pose Ini di TIV-COACH
+                    </Link>
+                 </Button>
               </CardContent>
             </Card>
           )}
@@ -259,3 +266,5 @@ export default function TivCheckPage() {
     </div>
   );
 }
+
+    
