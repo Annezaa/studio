@@ -4,6 +4,8 @@
 import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
+import Link from 'next/link';
+import { Camera } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Carousel, CarouselApi, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Button } from '@/components/ui/button';
@@ -207,6 +209,12 @@ function TivCoachContent() {
                                     ))}
                                   </ul>
                                 </div>
+                                <Button asChild className="w-full mt-4">
+                                    <Link href={`/tiv-check?pose=${encodeURIComponent(pose.name)}`}>
+                                        <Camera className="mr-2 h-4 w-4" />
+                                        Cek Postur Saya
+                                    </Link>
+                                 </Button>
                               </div>
                             </CardContent>
                           </Card>
@@ -231,5 +239,7 @@ export default function TivCoachPage() {
         </Suspense>
     )
 }
+
+    
 
     

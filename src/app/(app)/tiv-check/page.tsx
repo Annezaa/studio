@@ -1,9 +1,10 @@
 
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, Suspense } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { Camera as CameraIcon, Zap, CheckCircle, XCircle, Video, VideoOff, Dumbbell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -23,8 +24,9 @@ const yogaPoses = [
   { name: "Cat-Cow Pose", image: "https://images.unsplash.com/photo-1614713495470-3abc7373f7c4?q=80&w=1887&auto=format&fit=crop", hint: "cat cow yoga" }
 ];
 
-export default function TivCheckPage() {
+function TivCheckContent() {
   const { toast } = useToast();
+  const searchParams = useSearchParams();
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const [selectedPose, setSelectedPose] = useState<string>('');
@@ -33,6 +35,13 @@ export default function TivCheckPage() {
   const [error, setError] = useState<string | null>(null);
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
   const [isCameraOn, setIsCameraOn] = useState(false);
+
+  useEffect(() => {
+    const poseFromUrl = searchParams.get('pose');
+    if (poseFromUrl && yogaPoses.some(p => p.name === poseFromUrl)) {
+      setSelectedPose(poseFromUrl);
+    }
+  }, [searchParams]);
 
   const startCamera = useCallback(async () => {
     try {
@@ -266,5 +275,15 @@ export default function TivCheckPage() {
     </div>
   );
 }
+
+
+export default function TivCheckPage() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <TivCheckContent />
+        </Suspense>
+    )
+}
+    
 
     
