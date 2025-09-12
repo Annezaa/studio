@@ -36,6 +36,8 @@ function TivCheckContent() {
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
   const [isCameraOn, setIsCameraOn] = useState(false);
   const [analyzedImage, setAnalyzedImage] = useState<string | null>(null);
+  const [countdown, setCountdown] = useState(0);
+  const timerId = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const poseFromUrl = searchParams.get('pose');
@@ -80,19 +82,16 @@ function TivCheckContent() {
   useEffect(() => {
     return () => {
       stopCamera();
+      if(timerId.current) clearInterval(timerId.current);
     };
   }, [stopCamera]);
   
-  const handleCheckPosture = async () => {
-    if (!selectedPose) {
-      setError("Silakan pilih pose yoga terlebih dahulu.");
+  const captureAndAnalyze = useCallback(async () => {
+    if (!videoRef.current) {
+      setError("Referensi video tidak ditemukan.");
       return;
     }
-    if (!videoRef.current || !isCameraOn) {
-        setError("Kamera tidak aktif. Harap nyalakan kamera terlebih dahulu.");
-        return;
-    }
-
+    
     setIsLoading(true);
     setResult(null);
     setError(null);
@@ -129,6 +128,37 @@ function TivCheckContent() {
     } finally {
       setIsLoading(false);
     }
+  }, [selectedPose, toast]);
+
+
+  useEffect(() => {
+    if (countdown > 0) {
+      timerId.current = setTimeout(() => {
+        setCountdown(countdown - 1);
+      }, 1000);
+    } else if (countdown === 0 && isLoading) { // isLoading is true when countdown starts
+        if(timerId.current) clearTimeout(timerId.current);
+        captureAndAnalyze();
+    }
+    return () => {
+        if(timerId.current) clearTimeout(timerId.current);
+    }
+  }, [countdown, isLoading, captureAndAnalyze]);
+  
+  const handleCheckPosture = async () => {
+    if (!selectedPose) {
+      setError("Silakan pilih pose yoga terlebih dahulu.");
+      return;
+    }
+    if (!videoRef.current || !isCameraOn) {
+        setError("Kamera tidak aktif. Harap nyalakan kamera terlebih dahulu.");
+        return;
+    }
+
+    setResult(null);
+    setError(null);
+    setIsLoading(true); // Set loading to true to initiate countdown
+    setCountdown(10);
   };
   
   const poseImage = yogaPoses.find(p => p.name === selectedPose)?.image;
@@ -214,7 +244,11 @@ function TivCheckContent() {
             <CardContent>
                 <Button onClick={handleCheckPosture} disabled={!selectedPose || isLoading || !isCameraOn} className="w-full">
                 <Zap className="mr-2 h-4 w-4" />
-                {isLoading ? "Menganalisis..." : "Periksa Postur Saya"}
+                {countdown > 0
+                  ? `Bersiap... ${countdown}`
+                  : isLoading
+                  ? "Menganalisis..."
+                  : "Periksa Postur Saya"}
               </Button>
             </CardContent>
           </Card>
@@ -286,4 +320,5 @@ export default function TivCheckPage() {
     
 
     
+
 
