@@ -245,9 +245,6 @@ function TivCheckContent() {
                       objectFit="cover"
                       className="transform scale-x-[-1]"
                     />
-                     <div className="absolute inset-0 bg-black/40 flex items-center justify-center p-4">
-                      <p className="text-white text-center text-lg font-bold">Ini adalah postur Anda saat dianalisis.</p>
-                    </div>
                   </div>
                 )}
                 <div>
