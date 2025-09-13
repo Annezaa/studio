@@ -12,8 +12,6 @@ const settingsItems = [
     icon: <User className="h-5 w-5 text-primary" />,
     content: [
       { label: "Edit Profil", href: "/edit-profile", icon: <User className="mr-2 h-4 w-4"/> },
-      { label: "Ubah Kata Sandi", href: "#", icon: <Lock className="mr-2 h-4 w-4" /> },
-      { label: "Pengaturan Privasi", href: "#", icon: <Shield className="mr-2 h-4 w-4"/> },
     ],
   },
   {
@@ -30,8 +28,6 @@ const settingsItems = [
     content: [
       { label: "Versi Aplikasi", text: "1.0.0", icon: <Info className="mr-2 h-4 w-4"/> },
       { label: "Hak Cipta", text: "© 2024 BEAUTIVE", icon: <Info className="mr-2 h-4 w-4"/> },
-      { label: "Kebijakan Privasi", href: "#", icon: <FileText className="mr-2 h-4 w-4"/> },
-      { label: "Syarat dan Ketentuan", href: "#", icon: <FileText className="mr-2 h-4 w-4"/> },
     ],
   },
 ];
