@@ -1,16 +1,19 @@
 
 "use client";
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from '@/components/ui/button';
-import { User, HelpCircle, Send, Info, ChevronRight } from 'lucide-react';
+import { User, HelpCircle, Send, Info, ChevronRight, MessageSquareQuote } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogFooter,
+  DialogClose,
 } from "@/components/ui/dialog";
 import {
   Accordion,
@@ -18,6 +21,10 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
 
 const faqData = [
   {
@@ -55,7 +62,7 @@ const settingsItems = [
     icon: <HelpCircle className="h-5 w-5 text-primary" />,
     content: [
       { label: "FAQ", isFaq: true, icon: <HelpCircle className="mr-2 h-4 w-4"/> },
-      { label: "Hubungi Kami", href: "#", icon: <Send className="mr-2 h-4 w-4"/> },
+      { label: "Kirim Umpan Balik", isFeedback: true, icon: <MessageSquareQuote className="mr-2 h-4 w-4"/> },
     ],
   },
   {
@@ -67,6 +74,79 @@ const settingsItems = [
     ],
   },
 ];
+
+function FeedbackDialog() {
+  const { toast } = useToast();
+  const [feedbackType, setFeedbackType] = useState("");
+  const [feedbackMessage, setFeedbackMessage] = useState("");
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log("Umpan Balik:", { type: feedbackType, message: feedbackMessage });
+    toast({
+      title: "Terima Kasih!",
+      description: "Umpan balik Anda telah berhasil kami terima.",
+    });
+    setFeedbackType("");
+    setFeedbackMessage("");
+  };
+
+  return (
+    <Dialog onOpenChange={() => {
+      setFeedbackType("");
+      setFeedbackMessage("");
+    }}>
+      <DialogTrigger asChild>
+        <Button variant="ghost" className="w-full justify-between">
+          <div className="flex items-center">
+            <MessageSquareQuote className="mr-2 h-4 w-4" />
+            <span>Kirim Umpan Balik</span>
+          </div>
+          <ChevronRight className="h-4 w-4" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px]">
+        <form onSubmit={handleSubmit}>
+          <DialogHeader>
+            <DialogTitle className="font-headline text-2xl">Kirim Umpan Balik</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="feedback-type">Jenis Umpan Balik</Label>
+              <Select value={feedbackType} onValueChange={setFeedbackType} required>
+                <SelectTrigger id="feedback-type">
+                  <SelectValue placeholder="Pilih kategori..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="saran">Saran Fitur Baru</SelectItem>
+                  <SelectItem value="bug">Laporan Bug (Masalah Teknis)</SelectItem>
+                  <SelectItem value="pertanyaan">Pertanyaan Umum</SelectItem>
+                  <SelectItem value="lainnya">Lainnya</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="feedback-message">Pesan Anda</Label>
+              <Textarea
+                id="feedback-message"
+                placeholder="Ceritakan kepada kami saran atau masalah Anda..."
+                value={feedbackMessage}
+                onChange={(e) => setFeedbackMessage(e.target.value)}
+                required
+                rows={5}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <DialogClose asChild>
+                <Button type="submit" disabled={!feedbackType || !feedbackMessage}>Kirim</Button>
+            </DialogClose>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 export default function SettingsPage() {
   return (
@@ -104,7 +184,7 @@ export default function SettingsPage() {
                             <DialogHeader>
                               <DialogTitle className="font-headline text-2xl">Pertanyaan yang Sering Diajukan</DialogTitle>
                             </DialogHeader>
-                            <Accordion type="single" collapsible className="w-full">
+                            <Accordion type="single" collapsible className="w-full max-h-[60vh] overflow-y-auto pr-4">
                               {faqData.map((faq, index) => (
                                 <AccordionItem value={`item-${index}`} key={index}>
                                   <AccordionTrigger>{faq.question}</AccordionTrigger>
@@ -117,6 +197,9 @@ export default function SettingsPage() {
                           </DialogContent>
                         </Dialog>
                       );
+                    }
+                    if (subItem.isFeedback) {
+                      return <FeedbackDialog key={subItem.label} />;
                     }
                     if (subItem.href) {
                       return (
@@ -149,3 +232,5 @@ export default function SettingsPage() {
     </div>
   );
 }
+
+    
