@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/sidebar";
 
 const menuItems = [
-  { href: "/", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/tiv-check", label: "TIV-CHECK", icon: Camera },
   { href: "/tiv-talks", label: "TIV-TALKS", icon: MessageCircle },
   { href: "/tiv-track", label: "TIV-TRACK", icon: HeartPulse },
@@ -45,7 +45,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <div className="flex min-h-screen">
         <Sidebar>
           <SidebarHeader className="p-4">
-            <Link href="/" className="text-2xl font-headline text-primary">
+            <Link href="/dashboard" className="text-2xl font-headline text-primary">
               BEAUTIVE
             </Link>
           </SidebarHeader>
@@ -70,7 +70,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </Sidebar>
         <SidebarInset className="flex-1">
             <header className="md:hidden flex items-center justify-between p-4 border-b sticky top-0 bg-background/80 backdrop-blur-sm z-10">
-                <Link href="/" className="text-xl font-headline text-primary">BEAUTIVE</Link>
+                <Link href="/dashboard" className="text-xl font-headline text-primary">BEAUTIVE</Link>
                 <SidebarTrigger/>
             </header>
             <main className="p-4 md:p-6 lg:p-8">

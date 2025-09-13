@@ -72,7 +72,7 @@ export default function EditProfilePage() {
       title: "Profil Diperbarui",
       description: "Perubahan profil Anda telah berhasil disimpan.",
     });
-    router.push('/');
+    router.push('/dashboard');
   };
 
   if (!isClient) {
@@ -82,7 +82,7 @@ export default function EditProfilePage() {
   return (
     <div className="flex items-center justify-center p-4 min-h-screen bg-muted/40">
       <Card className="w-full max-w-md relative shadow-2xl">
-        <Link href="/" passHref>
+        <Link href="/dashboard" passHref>
           <Button variant="ghost" size="icon" className="absolute top-4 right-4 text-muted-foreground">
             <X className="h-5 w-5" />
             <span className="sr-only">Tutup</span>
@@ -159,4 +159,3 @@ export default function EditProfilePage() {
     </div>
   );
 }
-
