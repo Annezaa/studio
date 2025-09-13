@@ -3,9 +3,21 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from '@/components/ui/button';
-import { User, HelpCircle, Send, Info, ChevronRight, MessageSquareQuote } from 'lucide-react';
+import { User, HelpCircle, Send, Info, ChevronRight, MessageSquareQuote, LogOut } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import {
   Dialog,
   DialogContent,
@@ -55,6 +67,7 @@ const settingsItems = [
     icon: <User className="h-5 w-5 text-primary" />,
     content: [
       { label: "Edit Profil", href: "/edit-profile", icon: <User className="mr-2 h-4 w-4"/> },
+      { label: "Keluar", isLogout: true, icon: <LogOut className="mr-2 h-4 w-4"/> },
     ],
   },
   {
@@ -148,6 +161,48 @@ function FeedbackDialog() {
   );
 }
 
+function LogoutDialog() {
+  const router = useRouter();
+  const { toast } = useToast();
+
+  const handleLogout = () => {
+    // Simulasi proses logout
+    toast({
+      title: "Berhasil Keluar",
+      description: "Anda telah berhasil keluar dari akun Anda.",
+    });
+    router.push('/login');
+  };
+
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <Button variant="ghost" className="w-full justify-between text-destructive hover:text-destructive">
+          <div className="flex items-center">
+            <LogOut className="mr-2 h-4 w-4" />
+            <span>Keluar</span>
+          </div>
+          <ChevronRight className="h-4 w-4" />
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Apakah Anda yakin ingin keluar?</AlertDialogTitle>
+          <AlertDialogDescription>
+            Anda akan dikembalikan ke halaman login setelah keluar.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Batal</AlertDialogCancel>
+          <AlertDialogAction onClick={handleLogout} className="bg-destructive hover:bg-destructive/90">
+            Keluar
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
+
 export default function SettingsPage() {
   return (
     <div className="space-y-8">
@@ -180,7 +235,7 @@ export default function SettingsPage() {
                               <ChevronRight className="h-4 w-4" />
                             </Button>
                           </DialogTrigger>
-                          <DialogContent className="sm:max-w-[425px]">
+                          <DialogContent className="sm:max-w-lg">
                             <DialogHeader>
                               <DialogTitle className="font-headline text-2xl">Pertanyaan yang Sering Diajukan</DialogTitle>
                             </DialogHeader>
@@ -200,6 +255,9 @@ export default function SettingsPage() {
                     }
                     if (subItem.isFeedback) {
                       return <FeedbackDialog key={subItem.label} />;
+                    }
+                    if (subItem.isLogout) {
+                      return <LogoutDialog key={subItem.label} />;
                     }
                     if (subItem.href) {
                       return (
@@ -232,5 +290,6 @@ export default function SettingsPage() {
     </div>
   );
 }
+    
 
     
