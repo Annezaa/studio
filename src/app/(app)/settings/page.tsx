@@ -2,7 +2,6 @@
 "use client";
 
 import Link from 'next/link';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from '@/components/ui/button';
 import { User, Lock, Shield, HelpCircle, Send, Info, FileText, ChevronRight } from 'lucide-react';
@@ -45,47 +44,43 @@ export default function SettingsPage() {
         <p className="text-lg text-muted-foreground">Kelola akun, preferensi, dan lainnya.</p>
       </header>
 
-      <Card>
-        <CardContent className="p-6">
-          <Accordion type="single" collapsible className="w-full">
-            {settingsItems.map((item) => (
-              <AccordionItem value={item.title} key={item.title}>
-                <AccordionTrigger className="text-lg font-semibold hover:no-underline">
-                  <div className="flex items-center gap-3">
-                    {item.icon}
-                    {item.title}
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent className="pt-2 pl-4">
-                  <div className="flex flex-col space-y-1">
-                    {item.content.map((subItem) => (
-                      subItem.href ? (
-                         <Link href={subItem.href} key={subItem.label} passHref>
-                            <Button variant="ghost" className="w-full justify-between">
-                                <div className="flex items-center">
-                                    {subItem.icon}
-                                    <span>{subItem.label}</span>
-                                </div>
-                                <ChevronRight className="h-4 w-4" />
-                            </Button>
-                        </Link>
-                      ) : (
-                        <div key={subItem.label} className="flex justify-between items-center p-3 rounded-md">
-                           <div className="flex items-center">
+      <div className="space-y-6">
+        {settingsItems.map((item) => (
+          <Card key={item.title}>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-3 text-xl">
+                 {item.icon}
+                 {item.title}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+                <div className="flex flex-col space-y-1">
+                {item.content.map((subItem) => (
+                    subItem.href ? (
+                    <Link href={subItem.href} key={subItem.label} passHref>
+                        <Button variant="ghost" className="w-full justify-between">
+                            <div className="flex items-center">
                                 {subItem.icon}
                                 <span>{subItem.label}</span>
                             </div>
-                           <span className="text-muted-foreground text-sm">{subItem.text}</span>
+                            <ChevronRight className="h-4 w-4" />
+                        </Button>
+                    </Link>
+                    ) : (
+                    <div key={subItem.label} className="flex justify-between items-center p-3 rounded-md">
+                        <div className="flex items-center">
+                            {subItem.icon}
+                            <span>{subItem.label}</span>
                         </div>
-                      )
-                    ))}
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        </CardContent>
-      </Card>
+                        <span className="text-muted-foreground text-sm">{subItem.text}</span>
+                    </div>
+                    )
+                ))}
+                </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 }
