@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { ArrowRight, Camera, MessageCircle, HeartPulse, Dumbbell, User, Edit, Palette, BarChart2, Droplet, Moon, Lightbulb } from "lucide-react";
+import { ArrowRight, Camera, MessageCircle, HeartPulse, Dumbbell, User, Edit, Palette, BarChart2, Droplet, Moon, Lightbulb, Settings, HelpCircle, MessageSquareQuote, Info } from "lucide-react";
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import useLocalStorage from '@/hooks/use-local-storage';
@@ -41,6 +41,30 @@ const features = [
     cta: 'Mulai Latihan'
   }
 ];
+
+const settingsItems = [
+  {
+    label: "Pengaturan Akun",
+    icon: <Settings className="h-6 w-6 text-muted-foreground" />,
+    href: "/edit-profile"
+  },
+  {
+    label: "Bantuan & Dukungan",
+    icon: <HelpCircle className="h-6 w-6 text-muted-foreground" />,
+    href: "#"
+  },
+  {
+    label: "Kirim Umpan Balik",
+    icon: <MessageSquareQuote className="h-6 w-6 text-muted-foreground" />,
+    href: "#"
+  },
+  {
+    label: "Tentang Aplikasi",
+    icon: <Info className="h-6 w-6 text-muted-foreground" />,
+    href: "#"
+  }
+];
+
 
 function UserProfileCard() {
   const [exerciseDuration] = useLocalStorage('exerciseDuration', 0);
@@ -125,6 +149,28 @@ function HealthyTipCard() {
   )
 }
 
+function SettingsAndInfoCard() {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="font-headline font-bold">Pengaturan & Informasi</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="flex justify-around items-start text-center">
+          {settingsItems.map((item) => (
+            <Link href={item.href} key={item.label} className="flex flex-col items-center gap-2 w-24 group">
+              <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                {item.icon}
+              </div>
+              <span className="text-xs text-muted-foreground group-hover:text-primary transition-colors">{item.label}</span>
+            </Link>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 export default function DashboardPage() {
   return (
     <div className="flex flex-col space-y-8">
@@ -155,6 +201,7 @@ export default function DashboardPage() {
             </Card>
           ))}
         </div>
+         <SettingsAndInfoCard />
       </main>
     </div>
   );
