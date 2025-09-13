@@ -78,8 +78,10 @@ function UserProfileCard() {
                   <Edit className="mr-2 h-4 w-4" /> Edit Profil
                 </Link>
               </Button>
-              <Button variant="outline" size="sm">
-                <Settings className="mr-2 h-4 w-4" /> Pengaturan
+              <Button variant="outline" size="sm" asChild>
+                <Link href="/settings">
+                  <Settings className="mr-2 h-4 w-4" /> Pengaturan
+                </Link>
               </Button>
             </div>
           </div>

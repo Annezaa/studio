@@ -35,7 +35,7 @@ const menuItems = [
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
-  // Hide sidebar for edit-profile page
+  // Hide sidebar for edit-profile page to provide a focused experience
   if (pathname === '/edit-profile') {
     return <main>{children}</main>;
   }
