@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -33,6 +34,11 @@ const menuItems = [
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+
+  // Hide sidebar for edit-profile page
+  if (pathname === '/edit-profile') {
+    return <main>{children}</main>;
+  }
 
   return (
     <SidebarProvider>

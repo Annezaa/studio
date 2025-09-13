@@ -46,6 +46,12 @@ function UserProfileCard() {
   const [exerciseDuration] = useLocalStorage('exerciseDuration', 0);
   const [waterIntake] = useLocalStorage('waterIntake', 0);
   const [sleepQuality] = useLocalStorage<number[]>('sleepQuality', [7]);
+  const [profile, setProfile] = useLocalStorage('userProfile', {
+    name: 'Mitha (Anda)',
+    age: 17,
+    status: 'Mahasiswa',
+    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1964&auto=format&fit=crop"
+  });
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
@@ -58,16 +64,20 @@ function UserProfileCard() {
       <CardContent className="p-6">
         <div className="flex flex-col md:flex-row items-center gap-6">
           <Avatar className="h-24 w-24 border-4 border-primary">
-            <AvatarImage src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1964&auto=format&fit=crop" alt="User Avatar" data-ai-hint="profile avatar" />
+            <AvatarImage src={isClient ? profile.avatar : ''} alt="User Avatar" data-ai-hint="profile avatar" />
             <AvatarFallback>
               <User className="h-12 w-12" />
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 text-center md:text-left">
-            <h2 className="text-2xl font-headline">Mitha (Anda)</h2>
-            <p className="text-muted-foreground">17 tahun · Mahasiswa</p>
+            <h2 className="text-2xl font-headline">{isClient ? profile.name : 'Memuat...'}</h2>
+            <p className="text-muted-foreground">{isClient ? `${profile.age} tahun · ${profile.status}` : '...'}</p>
             <div className="flex gap-2 mt-2 justify-center md:justify-start">
-              <Button variant="outline" size="sm"><Edit className="mr-2 h-4 w-4" /> Edit Profil</Button>
+              <Button variant="outline" size="sm" asChild>
+                <Link href="/edit-profile">
+                  <Edit className="mr-2 h-4 w-4" /> Edit Profil
+                </Link>
+              </Button>
               <Button variant="outline" size="sm"><Palette className="mr-2 h-4 w-4" /> Ganti Tema</Button>
             </div>
           </div>
