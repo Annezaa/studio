@@ -42,30 +42,6 @@ const features = [
   }
 ];
 
-const settingsItems = [
-  {
-    label: "Pengaturan Akun",
-    icon: <Settings className="h-6 w-6 text-muted-foreground" />,
-    href: "/edit-profile"
-  },
-  {
-    label: "Bantuan & Dukungan",
-    icon: <HelpCircle className="h-6 w-6 text-muted-foreground" />,
-    href: "#"
-  },
-  {
-    label: "Kirim Umpan Balik",
-    icon: <MessageSquareQuote className="h-6 w-6 text-muted-foreground" />,
-    href: "#"
-  },
-  {
-    label: "Tentang Aplikasi",
-    icon: <Info className="h-6 w-6 text-muted-foreground" />,
-    href: "#"
-  }
-];
-
-
 function UserProfileCard() {
   const [exerciseDuration] = useLocalStorage('exerciseDuration', 0);
   const [waterIntake] = useLocalStorage('waterIntake', 0);
@@ -102,7 +78,9 @@ function UserProfileCard() {
                   <Edit className="mr-2 h-4 w-4" /> Edit Profil
                 </Link>
               </Button>
-              <Button variant="outline" size="sm"><Palette className="mr-2 h-4 w-4" /> Ganti Tema</Button>
+              <Button variant="outline" size="sm">
+                <Settings className="mr-2 h-4 w-4" /> Pengaturan
+              </Button>
             </div>
           </div>
           <div className="w-full md:w-auto flex-shrink-0 md:border-l md:pl-6 text-center md:text-left">
@@ -149,28 +127,6 @@ function HealthyTipCard() {
   )
 }
 
-function SettingsAndInfoCard() {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="font-headline font-bold">Pengaturan & Informasi</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="flex justify-around items-start text-center">
-          {settingsItems.map((item) => (
-            <Link href={item.href} key={item.label} className="flex flex-col items-center gap-2 w-24 group">
-              <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                {item.icon}
-              </div>
-              <span className="text-xs text-muted-foreground group-hover:text-primary transition-colors">{item.label}</span>
-            </Link>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
 export default function DashboardPage() {
   return (
     <div className="flex flex-col space-y-8">
@@ -201,7 +157,6 @@ export default function DashboardPage() {
             </Card>
           ))}
         </div>
-         <SettingsAndInfoCard />
       </main>
     </div>
   );
