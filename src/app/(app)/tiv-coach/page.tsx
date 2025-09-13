@@ -80,7 +80,7 @@ const yogaPosesData = [
   {
     name: "Cat-Cow Pose",
     image: "https://youtu.be/y_cKHKi9UaM",
-    imgHint: "cat cow pose yoga",
+    imgHint: "cat cow yoga",
     description: "Meningkatkan fleksibilitas tulang belakang dan meredakan ketegangan punggung.",
     duration: "1-2 menit",
     steps: [
@@ -143,7 +143,7 @@ function TivCoachContent() {
     <div className="space-y-8">
       <header className="space-y-2">
         <h1 className="text-4xl md:text-5xl font-headline text-foreground">TIV-COACH</h1>
-        <p className="text-lg text-muted-foreground">Biarkan avatar virtual kami memandu Anda melalui setiap pose yoga.</p>
+        <p className="text-lg text-muted-foreground">Biarkan kami memandu Anda melalui setiap pose yoga.</p>
       </header>
       
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">

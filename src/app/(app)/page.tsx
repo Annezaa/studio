@@ -35,7 +35,7 @@ const features = [
   },
   {
     title: 'TIV-COACH',
-    description: 'Panduan yoga virtual dengan instruktur avatar.',
+    description: 'Panduan yoga virtual.',
     href: '/tiv-coach',
     icon: <Dumbbell className="h-8 w-8 text-primary" />,
     cta: 'Mulai Latihan'
