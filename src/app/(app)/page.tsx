@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { ArrowRight, Camera, MessageCircle, HeartPulse, Dumbbell, User, Edit, Palette, BarChart2, Droplet, Moon } from "lucide-react";
+import { ArrowRight, Camera, MessageCircle, HeartPulse, Dumbbell, User, Edit, Palette, BarChart2, Droplet, Moon, Lightbulb } from "lucide-react";
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import useLocalStorage from '@/hooks/use-local-storage';
@@ -107,6 +107,23 @@ function UserProfileCard() {
   );
 }
 
+function HealthyTipCard() {
+  return (
+    <Card className="w-full bg-pale-pink">
+      <CardContent className="p-6">
+        <div className="flex flex-col gap-2">
+          <CardTitle className="flex items-center gap-2 text-lg font-bold text-gray-800 font-body">
+            <Lightbulb className="h-5 w-5 text-primary"/>
+            Tips Sehat Hari Ini
+          </CardTitle>
+          <CardDescription className="text-gray-600">
+            Ambil napas dalam-dalam. Beri waktu lima menit untuk meditasi ringan hari ini. Tubuh dan pikiran Anda akan berterima kasih.
+          </CardDescription>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
 
 export default function DashboardPage() {
   return (
@@ -118,6 +135,7 @@ export default function DashboardPage() {
 
       <main className="space-y-8">
         <UserProfileCard />
+        <HealthyTipCard />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {features.map((feature) => (
             <Card key={feature.title} className="group transition-all duration-300 hover:shadow-xl hover:border-primary/50 flex flex-col">
