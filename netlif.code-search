@@ -1,0 +1,25 @@
+# Query: netlif
+# ContextLines: 1
+
+5 results - 3 files
+
+netlify.toml:
+  5  [[plugins]]
+  6:   package = "@netlify/plugin-nextjs"
+  7  
+
+package-lock.json:
+    58        "devDependencies": {
+    59:         "@netlify/next": "^1.4.9",
+    60          "@types/node": "^20",
+
+  2203      },
+  2204:     "node_modules/@netlify/next": {
+  2205        "version": "1.4.9",
+  2206:       "resolved": "https://registry.npmjs.org/@netlify/next/-/next-1.4.9.tgz",
+  2207        "integrity": "sha512-lrbY+CEhS9x0jV7oXVYi/rqxZ6ht5KeLGNZsgIPI34kpDaBuD/EfsyKa28BWeSrFalxRZmkMxQYRSTa82v3roQ==",
+
+package.json:
+  62    "devDependencies": {
+  63:     "@netlify/next": "^1.4.9",
+  64      "@types/node": "^20",
